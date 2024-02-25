@@ -1,0 +1,4 @@
+A -> "a" @Start
+B -> A A
+C -> B "a"
+D -> A B A "a"
