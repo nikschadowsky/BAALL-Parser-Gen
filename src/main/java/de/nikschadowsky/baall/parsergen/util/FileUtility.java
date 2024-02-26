@@ -46,6 +46,15 @@ public class FileUtility {
 
     public static String getFileExtension(@NotNull Path path) {
         String filename = path.getFileName().toString();
-        return filename.substring(filename.lastIndexOf("."));
+        return filename.substring(filename.lastIndexOf(".") + 1);
+    }
+
+    public static boolean createFile(Path filePath){
+        try {
+            Files.createFile(filePath);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 }
