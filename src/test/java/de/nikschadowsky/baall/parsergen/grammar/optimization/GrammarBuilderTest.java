@@ -6,7 +6,7 @@ import de.nikschadowsky.baall.parsergen.grammar.GrammarNonterminal;
 import de.nikschadowsky.baall.parsergen.grammar.GrammarProduction;
 import de.nikschadowsky.baall.parsergen.grammar.GrammarSymbol;
 import de.nikschadowsky.baall.parsergen.grammar.generation.GrammarReader;
-import de.nikschadowsky.baall.parsergen.util.FileLoader;
+import de.nikschadowsky.baall.parsergen.util.FileUtility;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -34,7 +34,7 @@ class GrammarBuilderTest {
 
     @BeforeAll
     static void setupAll() {
-        grammar = GrammarReader.getInstance().generateGrammar(FileLoader.getPathFromClasspath("GrammarBuilderTestGrammar.grammar"));
+        grammar = GrammarReader.getInstance().generateGrammar(FileUtility.getPathFromClasspath("GrammarBuilderTestGrammar.grammar"));
         nonterminalTranslationMap = grammar.getAllNonterminals()
                                            .stream()
                                            .collect(Collectors.toUnmodifiableMap(
@@ -59,7 +59,6 @@ class GrammarBuilderTest {
     @MethodSource("testProductionRuleBuilderReplaceArgumentProvider")
     void testProductionRuleBuilderBuild(String sourceId, String targetId, Set<List<GrammarSymbol>> replacements, Set<List<GrammarSymbol>> expectedRaw) {
         GrammarNonterminal sourceOld = getNonterminal(grammar, sourceId);
-        GrammarNonterminal sourceNew = getNewNonterminal(sourceOld);
         GrammarNonterminal target = getNewNonterminal(targetId);
 
         Set<GrammarProduction> expected = expectedRaw.stream()

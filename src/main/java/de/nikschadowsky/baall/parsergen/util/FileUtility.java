@@ -9,7 +9,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class FileLoader {
+public class FileUtility {
 
     public static String getFileContent(Path path){
         try {

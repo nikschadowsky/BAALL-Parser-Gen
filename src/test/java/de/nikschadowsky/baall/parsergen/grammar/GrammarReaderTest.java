@@ -2,7 +2,7 @@ package de.nikschadowsky.baall.parsergen.grammar;
 
 import de.nikschadowsky.baall.parsergen._utility.GrammarUtility;
 import de.nikschadowsky.baall.parsergen.grammar.generation.GrammarReader;
-import de.nikschadowsky.baall.parsergen.util.FileLoader;
+import de.nikschadowsky.baall.parsergen.util.FileUtility;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +17,7 @@ class GrammarReaderTest {
 
     @Test
     void testCreateGrammar() {
-        Grammar g = GrammarReader.getInstance().generateGrammar(FileLoader.getPathFromClasspath("GrammarReaderTestFile.grammar"));
+        Grammar g = GrammarReader.getInstance().generateGrammar(FileUtility.getPathFromClasspath("GrammarReaderTestFile.grammar"));
 
         assertTrue(g.getStart().getIdentifier().equalsIgnoreCase("start"));
 
@@ -54,7 +54,7 @@ class GrammarReaderTest {
     @Test
     void testCreateGrammarWithStartNotInFirstLine() {
         Grammar g =
-                GrammarReader.getInstance().generateGrammar(FileLoader.getPathFromClasspath("GrammarReaderStartInLastLineTestFile.grammar"));
+                GrammarReader.getInstance().generateGrammar(FileUtility.getPathFromClasspath("GrammarReaderStartInLastLineTestFile.grammar"));
 
         assertEquals(GrammarUtility.getNonterminal(g, "B"), g.getStart());
         assertTrue(GrammarUtility.getNonterminal(g, "START").getAnnotations().isEmpty());
@@ -64,7 +64,7 @@ class GrammarReaderTest {
     void testCreateGrammarWithMultipleAnnotations() {
         Grammar g =
                 GrammarReader.getInstance()
-                             .generateGrammar(FileLoader.getPathFromClasspath(
+                             .generateGrammar(FileUtility.getPathFromClasspath(
                                      "GrammarReaderNonterminalWithMultipleAnnotationsTestFile.grammar"));
 
         assertEquals(GrammarUtility.getNonterminal(g, "A"), g.getStart());
@@ -75,7 +75,7 @@ class GrammarReaderTest {
     void testCreateGrammarSyntaxError() {
         Exception e = assertThrows(
                 GrammarSyntaxException.class,
-                () -> GrammarReader.getInstance().generateGrammar(FileLoader.getPathFromClasspath("GrammarReaderTestSyntaxError.grammar"))
+                () -> GrammarReader.getInstance().generateGrammar(FileUtility.getPathFromClasspath("GrammarReaderTestSyntaxError.grammar"))
         );
 
         String expected = "Missing symbols";
@@ -89,7 +89,7 @@ class GrammarReaderTest {
     void testCreateGrammarEpsilonError() {
         Exception e = assertThrows(
                 GrammarSyntaxException.class,
-                () -> GrammarReader.getInstance().generateGrammar(FileLoader.getPathFromClasspath("GrammarReaderTestEpsilonError.grammar"))
+                () -> GrammarReader.getInstance().generateGrammar(FileUtility.getPathFromClasspath("GrammarReaderTestEpsilonError.grammar"))
         );
 
         String expected = "Meta symbols cannot be used as identifiers for nonterminals!";

@@ -2,7 +2,7 @@ package de.nikschadowsky.baall.parsergen.grammar.generation;
 
 import de.nikschadowsky.baall.parsergen.grammar.*;
 import de.nikschadowsky.baall.parsergen.util.ArrayUtility;
-import de.nikschadowsky.baall.parsergen.util.FileLoader;
+import de.nikschadowsky.baall.parsergen.util.FileUtility;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -73,10 +73,10 @@ public class GrammarReader {
     }
 
     private @NotNull GrammarFileContent createFileContentContainer(@NotNull Path path) {
-        if (!FileLoader.getFileExtension(path).equals("grammar")) {
+        if (!FileUtility.getFileExtension(path).equals("grammar")) {
             System.out.println("Grammar files should use the '.grammar' extension!");
         }
-        String preprocessed = preprocess(FileLoader.getFileContent(path));
+        String preprocessed = preprocess(FileUtility.getFileContent(path));
         String[] lines = preprocessed.split("\\v+");
         String[][] tokens = splitLines(lines);
 
