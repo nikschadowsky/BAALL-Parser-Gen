@@ -1,6 +1,0 @@
-ROOT -> A "a" B @Start
-A -> B "b"
-B -> "c" C
-C -> D
-D -> "d" "e" E
-E -> "f" "g" "h"
