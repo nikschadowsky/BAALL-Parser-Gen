@@ -1,5 +1,7 @@
 package de.nikschadowsky.baall.parsergen.generator.elements;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,8 +11,7 @@ import java.util.stream.Collectors;
  */
 public interface JavaSourceElement<ELEMENT_TYPE> {
 
-    String getSourceCodeSnippet();
-
+    @NotNull String getSourceCodeSnippet();
 
     static String joinArgumentsString(JavaSourceElement<?>... elements) {
         List<String> elementCodeSnippets = Arrays.stream(elements)

@@ -1,6 +1,7 @@
-package de.nikschadowsky.baall.parsergen.generator.elements;
+package de.nikschadowsky.baall.parsergen.generator.elements.definition;
 
 import java.util.Map;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * File created on 26.02.2024
@@ -52,5 +53,6 @@ public class JavaSourceNamespaceDescriptor<NAMESPACE_TYPE> implements JavaSource
         String typeName = PRIMITIVE_CLASS_NAMES.getOrDefault(type, type.getSimpleName());
 
         return JavaSourceElement.joinArgumentsString(accessLevel, modifierFlag) + typeName + name;
+    public @NotNull String getSourceCodeSnippet() {
     }
 }

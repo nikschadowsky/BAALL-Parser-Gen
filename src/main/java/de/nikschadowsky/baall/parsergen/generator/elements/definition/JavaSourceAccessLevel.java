@@ -1,4 +1,7 @@
-package de.nikschadowsky.baall.parsergen.generator.elements;
+package de.nikschadowsky.baall.parsergen.generator.elements.definition;
+
+import de.nikschadowsky.baall.parsergen.generator.elements.JavaSourceElement;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * File created on 26.02.2024
@@ -18,7 +21,7 @@ public enum JavaSourceAccessLevel implements JavaSourceElement<JavaSourceAccessL
     }
 
     @Override
-    public String getSourceCodeSnippet() {
+    public @NotNull String getSourceCodeSnippet() {
         return sourceCodeRepresentation;
     }
 }

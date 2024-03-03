@@ -1,5 +1,7 @@
 package de.nikschadowsky.baall.parsergen.generator.elements;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.function.BinaryOperator;
 
@@ -17,7 +19,7 @@ public class JavaSourceElementList<ELEMENT_TYPE extends JavaSourceElement<?>> ex
     }
 
     @Override
-    public String getSourceCodeSnippet() {
+    public @NotNull String getSourceCodeSnippet() {
         return stream().map(JavaSourceElement::getSourceCodeSnippet).reduce(
                 "", sourceCodeFunction
         );

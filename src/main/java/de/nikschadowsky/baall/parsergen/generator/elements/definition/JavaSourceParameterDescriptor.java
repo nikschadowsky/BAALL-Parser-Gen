@@ -1,4 +1,7 @@
-package de.nikschadowsky.baall.parsergen.generator.elements;
+package de.nikschadowsky.baall.parsergen.generator.elements.definition;
+
+import de.nikschadowsky.baall.parsergen.generator.elements.JavaSourceElement;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * File created on 28.02.2024
@@ -12,5 +15,6 @@ public class JavaSourceParameterDescriptor<FIELD_TYPE> extends JavaSourceNamespa
     @Override
     public String getSourceCodeSnippet() {
         return "%s %s".formatted();
+    public @NotNull String getSourceCodeSnippet() {
     }
 }

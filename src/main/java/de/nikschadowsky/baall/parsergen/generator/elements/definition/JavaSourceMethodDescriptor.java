@@ -1,4 +1,8 @@
-package de.nikschadowsky.baall.parsergen.generator.elements;
+package de.nikschadowsky.baall.parsergen.generator.elements.definition;
+
+import de.nikschadowsky.baall.parsergen.generator.elements.JavaSourceElement;
+import de.nikschadowsky.baall.parsergen.generator.elements.JavaSourceElementList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * File created on 27.02.2024
@@ -19,6 +23,10 @@ public class JavaSourceMethodDescriptor<RETURN_TYPE> implements JavaSourceElemen
         this.body = body;
     }
 
+    public JavaSourceElementList<JavaSourceParameterDescriptor<?>> getParameterDescriptors(){
+        return parameterDescriptors;
+    }
+
     @Override
     public String getSourceCodeSnippet() {
         return "%s(%s){%n          %s%n}".formatted(
@@ -37,7 +45,7 @@ public class JavaSourceMethodDescriptor<RETURN_TYPE> implements JavaSourceElemen
         }
 
         @Override
-        public String getSourceCodeSnippet() {
+        public @NotNull String getSourceCodeSnippet() {
             return body;
         }
     }
