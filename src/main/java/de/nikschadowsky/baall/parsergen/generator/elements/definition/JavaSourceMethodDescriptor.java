@@ -7,19 +7,21 @@ import org.jetbrains.annotations.NotNull;
 /**
  * File created on 27.02.2024
  */
-public class JavaSourceMethodDescriptor<RETURN_TYPE> implements JavaSourceElement<JavaSourceMethodDescriptor<RETURN_TYPE>> {
+public class JavaSourceMethodDescriptor<RETURN_TYPE> extends JavaSourceNamespaceDescriptor<RETURN_TYPE> {
 
-    private final JavaSourceNamespaceDescriptor<RETURN_TYPE> descriptor;
-    private final JavaSourceElementList<JavaSourceParameterDescriptor<?>> parameters;
+    private final JavaSourceElementList<JavaSourceParameterDescriptor<?>> parameterDescriptors;
     private final JavaMethodBody<RETURN_TYPE> body;
 
     public JavaSourceMethodDescriptor(
-            JavaSourceNamespaceDescriptor<RETURN_TYPE> descriptor,
-            JavaSourceElementList<JavaSourceParameterDescriptor<?>> parameters,
+            JavaSourceAccessLevel accessLevel,
+            JavaSourceModifierFlag modifierFlag,
+            Class<RETURN_TYPE> type,
+            String methodName,
+            JavaSourceElementList<JavaSourceParameterDescriptor<?>> parameterDescriptors,
             JavaMethodBody<RETURN_TYPE> body
     ) {
-        this.descriptor = descriptor;
-        this.parameters = parameters;
+        super(accessLevel, modifierFlag, type, methodName);
+        this.parameterDescriptors = parameterDescriptors;
         this.body = body;
     }
 
@@ -28,11 +30,10 @@ public class JavaSourceMethodDescriptor<RETURN_TYPE> implements JavaSourceElemen
     }
 
     @Override
-    public String getSourceCodeSnippet() {
-        return "%s(%s){%n          %s%n}".formatted(
-                descriptor.getSourceCodeSnippet(),
-                parameters.getSourceCodeSnippet(),
     public @NotNull String getSourceCodeSnippet() {
+        return "%s(%s){%n%s%n}".formatted(
+                super.getSourceCodeSnippet(),
+                parameterDescriptors.getSourceCodeSnippet(),
                 body.getSourceCodeSnippet()
         );
     }

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * File created on 26.02.2024
  */
-public class JavaSourceNamespaceDescriptor<NAMESPACE_TYPE> implements JavaSourceElement<JavaSourceNamespaceDescriptor<NAMESPACE_TYPE>> {
+public abstract class JavaSourceNamespaceDescriptor<NAMESPACE_TYPE> implements JavaSourceElement<JavaSourceNamespaceDescriptor<NAMESPACE_TYPE>> {
 
     private final JavaSourceAccessLevel accessLevel;
     private final JavaSourceModifierFlag modifierFlag;
@@ -23,6 +23,14 @@ public class JavaSourceNamespaceDescriptor<NAMESPACE_TYPE> implements JavaSource
         this.modifierFlag = modifierFlag;
         this.type = type;
         this.name = name;
+    }
+
+    public JavaSourceAccessLevel getAccessLevel() {
+        return accessLevel;
+    }
+
+    public JavaSourceModifierFlag getModifiers() {
+        return modifierFlag;
     }
 
     public String getName() {
