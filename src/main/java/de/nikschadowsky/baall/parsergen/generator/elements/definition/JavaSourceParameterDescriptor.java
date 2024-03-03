@@ -13,8 +13,7 @@ public class JavaSourceParameterDescriptor<FIELD_TYPE> extends JavaSourceNamespa
     }
 
     @Override
-    public String getSourceCodeSnippet() {
-        return "%s %s".formatted();
     public @NotNull String getSourceCodeSnippet() {
+        return "%s %s".formatted(JavaSourceElement.getSimpleTypeName(getType()), getName());
     }
 }

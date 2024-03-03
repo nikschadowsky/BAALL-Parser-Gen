@@ -32,6 +32,7 @@ public class JavaSourceMethodDescriptor<RETURN_TYPE> implements JavaSourceElemen
         return "%s(%s){%n          %s%n}".formatted(
                 descriptor.getSourceCodeSnippet(),
                 parameters.getSourceCodeSnippet(),
+    public @NotNull String getSourceCodeSnippet() {
                 body.getSourceCodeSnippet()
         );
     }
