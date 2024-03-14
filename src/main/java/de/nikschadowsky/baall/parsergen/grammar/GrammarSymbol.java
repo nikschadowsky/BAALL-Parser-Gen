@@ -12,13 +12,20 @@ public interface GrammarSymbol {
     boolean isTerminal();
 
     /**
-     * Compares Symbols if they are of the same type (e.g. Token or GrammarNonterminal). Else false.
+     * Compares two grammar symbols in a shallow way. Check individual implementations!
      *
-     * @return if symbols match
+     * @return if symbols are shallowly equal
      */
-    boolean symbolMatches(GrammarSymbol s);
-
     boolean symbolEquals(GrammarSymbol s);
+
+    /**
+     * Compares two grammar symbols in a deep way. Check individual implementations!
+     *
+     * @return if symbols are deeply equal
+     */
+    boolean symbolDeepEquals(GrammarSymbol s);
+
+    boolean equals(Object o);
 
     /**
      * @return a formatted representation of this symbol

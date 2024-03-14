@@ -61,11 +61,11 @@ public class Grammar {
         if (obj == this) return true;
 
         if (obj instanceof Grammar other) {
-            return start.symbolEquals(other.start) &&
+            return start.symbolDeepEquals(other.start) &&
                     CollectionUtility.shallowCompareCollections(
                             nonterminals,
                             other.getAllNonterminals(),
-                            GrammarNonterminal::symbolEquals
+                            GrammarNonterminal::symbolDeepEquals
                     ) &&
                     CollectionUtility.shallowCompareCollections(grammarProductions, other.grammarProductions);
         }

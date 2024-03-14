@@ -12,7 +12,7 @@ public record GrammarTerminal(TerminalType type, String value) implements Gramma
 
     @Override
     public @NotNull String getFormatted() {
-        return "";
+        return value;
     }
 
     @Override
@@ -21,7 +21,7 @@ public record GrammarTerminal(TerminalType type, String value) implements Gramma
     }
 
     @Override
-    public boolean symbolMatches(GrammarSymbol s) {
+    public boolean symbolEquals(GrammarSymbol s) {
         if (s instanceof GrammarTerminal terminal) {
 
             // if one of the terminal is type ANY, compare literal value
@@ -42,7 +42,7 @@ public record GrammarTerminal(TerminalType type, String value) implements Gramma
     }
 
     @Override
-    public boolean symbolEquals(GrammarSymbol s) {
+    public boolean symbolDeepEquals(GrammarSymbol s) {
         return equals(s);
     }
 

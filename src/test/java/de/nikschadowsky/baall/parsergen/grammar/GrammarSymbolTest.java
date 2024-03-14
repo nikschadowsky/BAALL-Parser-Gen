@@ -31,35 +31,35 @@ class GrammarSymbolTest {
     @Test
     void testSymbolMatchesTokens() {
         // always check for reflexivity
-        assertTrue(token4.symbolMatches(token5) && token5.symbolMatches(token4));
-        assertTrue(token5.symbolMatches(token6) && token6.symbolMatches(token5));
+        assertTrue(token4.symbolEquals(token5) && token5.symbolEquals(token4));
+        assertTrue(token5.symbolEquals(token6) && token6.symbolEquals(token5));
 
         // also both directions on same type but different value
-        assertFalse(token2.symbolMatches(token3) || token3.symbolMatches(token2));
+        assertFalse(token2.symbolEquals(token3) || token3.symbolEquals(token2));
 
         // for good measure
-        assertFalse(token1.symbolMatches(token2));
-        assertFalse(token1.symbolMatches(token3));
-        assertTrue(token1.symbolMatches(token4)); // Strings match regardless of content
-        assertTrue(token1.symbolMatches(token5));
-        assertFalse(token1.symbolMatches(token6));
+        assertFalse(token1.symbolEquals(token2));
+        assertFalse(token1.symbolEquals(token3));
+        assertFalse(token1.symbolEquals(token6));
+        assertTrue(token1.symbolEquals(token4)); // Strings match regardless of content
+        assertTrue(token1.symbolEquals(token5));
 
         // and just checking that one symbol matches itself
-        assertTrue(token1.symbolMatches(token1));
+        assertTrue(token1.symbolEquals(token1));
     }
 
     @Test
     void testSymbolMatchesNonterminal() {
         // checking for reflexivity just in case String.equals isn't reflexive
-        assertTrue(A.symbolMatches(B) && B.symbolMatches(A));
+        assertTrue(A.symbolEquals(B) && B.symbolEquals(A));
 
-        assertFalse(B.symbolMatches(C) || C.symbolMatches(B));
+        assertFalse(B.symbolEquals(C) || C.symbolEquals(B));
     }
 
     @Test
     void testSymbolMatchesMixed() {
-        assertFalse(A.symbolMatches(token1));
-        assertFalse(token2.symbolMatches(B));
+        assertFalse(A.symbolEquals(token1));
+        assertFalse(token2.symbolEquals(B));
 
     }
 }

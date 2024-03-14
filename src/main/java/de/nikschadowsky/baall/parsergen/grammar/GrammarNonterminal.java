@@ -117,7 +117,7 @@ public class GrammarNonterminal implements GrammarSymbol {
      * @return if symbols match
      */
     @Override
-    public boolean symbolMatches(GrammarSymbol s) {
+    public boolean symbolEquals(GrammarSymbol s) {
         if (s instanceof GrammarNonterminal g) {
             return getIdentifier().equals(g.getIdentifier());
         }
@@ -125,7 +125,7 @@ public class GrammarNonterminal implements GrammarSymbol {
     }
 
     @Override
-    public boolean symbolEquals(GrammarSymbol s) {
+    public boolean symbolDeepEquals(GrammarSymbol s) {
         if (s instanceof GrammarNonterminal other) {
             return getIdentifier().equals(other.getIdentifier()) && annotations.equals(other.annotations);
         }
