@@ -3,23 +3,37 @@ package de.nikschadowsky.baall.parsergen.grammar;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GrammarSymbolTest {
 
-    private GrammarTerminal token1, token2, token3, token4, token5, token6;
+
+    private GrammarTerminal terminalExactSameValue1, terminalExactSameValue2, terminalExactDiffValue1;
+    private GrammarTerminal terminalNotExactSameValue1, terminalNotExactSameValue2, terminalNotExactDiffValue1;
+    private GrammarTerminal terminalAny;
 
     private GrammarNonterminal A, B, C;
 
     @BeforeEach
     void setUp() {
-        token1 = new GrammarTerminal(GrammarTerminal.TerminalType.STRING, "value");
-        token2 = new GrammarTerminal(GrammarTerminal.TerminalType.KEYWORD, "same type a");
-        token3 = new GrammarTerminal(GrammarTerminal.TerminalType.KEYWORD, "same type b");
-        token4 = new GrammarTerminal(GrammarTerminal.TerminalType.STRING, "same value");
-        token5 = new GrammarTerminal(GrammarTerminal.TerminalType.STRING, "same value");
-        token6 = new GrammarTerminal(GrammarTerminal.TerminalType.ANY, "same value");
+        GrammarTerminal.TerminalType withExactValueMatching =
+                Arrays.stream(GrammarTerminal.TerminalType.values())
+                      .filter(GrammarTerminal.TerminalType::hasExactValueMatching)
+                      .findAny()
+                      .orElseThrow();
+
+        terminalExactSameValue1 = new GrammarTerminal(withExactValueMatching, "same");
+        terminalExactSameValue2 = new GrammarTerminal(withExactValueMatching, "same");
+        terminalExactDiffValue1 = new GrammarTerminal(withExactValueMatching, "different");
+
+        terminalNotExactSameValue1 = new GrammarTerminal(GrammarTerminal.TerminalType.STRING, "same");
+        terminalNotExactSameValue2 = new GrammarTerminal(GrammarTerminal.TerminalType.BOOLEAN, "same");
+        terminalNotExactDiffValue1 = new GrammarTerminal(GrammarTerminal.TerminalType.BOOLEAN, "different");
+
+        terminalAny = new GrammarTerminal(GrammarTerminal.TerminalType.ANY, "same");
 
 
         A = new GrammarNonterminal("identifier");
@@ -30,36 +44,42 @@ class GrammarSymbolTest {
 
     @Test
     void testSymbolMatchesTokens() {
-        // always check for reflexivity
-        assertTrue(token4.symbolEquals(token5) && token5.symbolEquals(token4));
-        assertTrue(token5.symbolEquals(token6) && token6.symbolEquals(token5));
+        // testing for reflexivity
+        assertTrue(terminalExactSameValue1.symbolEquals(terminalExactSameValue1));
+        assertTrue(terminalNotExactSameValue1.symbolEquals(terminalNotExactSameValue1));
 
-        // also both directions on same type but different value
-        assertFalse(token2.symbolEquals(token3) || token3.symbolEquals(token2));
+        // testing exact value matching
+        assertTrue(terminalExactSameValue1.symbolEquals(terminalExactSameValue2));
+        assertTrue(terminalExactSameValue2.symbolEquals(terminalExactSameValue1));
 
-        // for good measure
-        assertFalse(token1.symbolEquals(token2));
-        assertFalse(token1.symbolEquals(token3));
-        assertFalse(token1.symbolEquals(token6));
-        assertTrue(token1.symbolEquals(token4)); // Strings match regardless of content
-        assertTrue(token1.symbolEquals(token5));
+        assertFalse(terminalExactDiffValue1.symbolEquals(terminalExactSameValue1));
+        assertFalse(terminalExactSameValue2.symbolEquals(terminalExactDiffValue1));
 
-        // and just checking that one symbol matches itself
-        assertTrue(token1.symbolEquals(token1));
+        // testing not exact value matching
+        assertTrue(terminalNotExactSameValue1.symbolEquals(terminalNotExactSameValue2));
+        assertTrue(terminalNotExactSameValue2.symbolEquals(terminalNotExactSameValue1));
+
+        assertFalse(terminalNotExactDiffValue1.symbolEquals(terminalNotExactSameValue1));
+        assertFalse(terminalNotExactSameValue2.symbolEquals(terminalNotExactDiffValue1));
+
+        // testing ANY should ignore type and just compare value
+        assertTrue(terminalAny.symbolEquals(terminalExactSameValue1));
+        assertTrue(terminalExactSameValue1.symbolEquals(terminalAny));
+        assertTrue(terminalAny.symbolEquals(terminalNotExactSameValue1));
+        assertTrue(terminalExactSameValue1.symbolEquals(terminalAny));
+
+        // terminal and nonterminal should never equal each other
+        assertFalse(A.symbolEquals(terminalAny));
+        assertFalse(terminalAny.symbolEquals(B));
     }
 
     @Test
     void testSymbolMatchesNonterminal() {
-        // checking for reflexivity just in case String.equals isn't reflexive
-        assertTrue(A.symbolEquals(B) && B.symbolEquals(A));
+        assertTrue(A.symbolEquals(B));
+        assertTrue(B.symbolEquals(A));
 
-        assertFalse(B.symbolEquals(C) || C.symbolEquals(B));
+        assertFalse(B.symbolEquals(C));
+        assertFalse(C.symbolEquals(B));
     }
 
-    @Test
-    void testSymbolMatchesMixed() {
-        assertFalse(A.symbolEquals(token1));
-        assertFalse(token2.symbolEquals(B));
-
-    }
 }
