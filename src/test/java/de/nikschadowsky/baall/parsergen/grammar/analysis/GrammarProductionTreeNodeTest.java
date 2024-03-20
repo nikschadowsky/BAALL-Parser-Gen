@@ -1,7 +1,10 @@
 package de.nikschadowsky.baall.parsergen.grammar.analysis;
 
+import de.nikschadowsky.baall.parsergen._utility.GrammarUtility;
 import de.nikschadowsky.baall.parsergen.grammar.GrammarTerminal;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,12 +39,41 @@ class GrammarProductionTreeNodeTest {
         // but adding an element considered NOT equal should increase the size by one
         node.addUniqueChild(t3);
         assertEquals(2, node.getChildren().size());
+    }
 
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void testEquals(boolean hasEpsilonRule) {
+        // test root node alone
+        GrammarProductionTreeNode.Root root = createRootNode(hasEpsilonRule);
 
+        assertEquals(createRootNode(hasEpsilonRule), root);
+
+        // test symbol node alone
+        GrammarProductionTreeNode.SymbolNode first = createSymbolNodeWithName("first");
+
+        assertEquals(createSymbolNodeWithName("first"), first);
+
+        // test combination of both
+        root.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("first"));
+
+        GrammarProductionTreeNode.Root expectedRoot = new GrammarProductionTreeNode.Root(hasEpsilonRule);
+        assertNotEquals(expectedRoot, root);
+
+        expectedRoot.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("first"));
+
+        assertEquals(expectedRoot, root);
     }
 
 
-    private static class WrapperNode extends GrammarProductionTreeNode {
+    private GrammarProductionTreeNode.SymbolNode createSymbolNodeWithName(String name) {
+        return new GrammarProductionTreeNode.SymbolNode(GrammarUtility.getTerminalWithTypeAny(name));
+    }
 
+    private GrammarProductionTreeNode.Root createRootNode(boolean hasEpsilonRule) {
+        return new GrammarProductionTreeNode.Root(hasEpsilonRule);
+    }
+
+    private static class WrapperNode extends GrammarProductionTreeNode {
     }
 }
