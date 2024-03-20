@@ -14,7 +14,7 @@ import java.util.Optional;
  */
 public abstract class GrammarProductionTreeNode {
 
-    private final List<SymbolNode> children = new ArrayList<>();
+    protected final List<SymbolNode> children = new ArrayList<>();
 
     public SymbolNode addUniqueChild(@NotNull GrammarSymbol symbol) {
         Optional<SymbolNode> optExistingNode =
@@ -27,6 +27,15 @@ public abstract class GrammarProductionTreeNode {
         }
 
         return optExistingNode.get();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof GrammarProductionTreeNode node) {
+            return children.equals(node.children);
+        }
+
+        return false;
     }
 
     public @Unmodifiable List<SymbolNode> getChildren() {
@@ -45,11 +54,18 @@ public abstract class GrammarProductionTreeNode {
             return value;
         }
 
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof SymbolNode node) {
+                return value.symbolDeepEquals(node.value) && super.equals(obj);
+            }
+
+            return false;
+        }
+
     }
 
     public static class Root extends GrammarProductionTreeNode {
-
-        private final List<SymbolNode> topLevelChildren = new ArrayList<>();
 
         private final boolean hasEpsilonRule;
 
@@ -61,6 +77,14 @@ public abstract class GrammarProductionTreeNode {
             return hasEpsilonRule;
         }
 
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof GrammarProductionTreeNode.Root root) {
+                return hasEpsilonRule == root.hasEpsilonRule() && super.equals(root);
+            }
+
+            return false;
+        }
     }
 
 }
