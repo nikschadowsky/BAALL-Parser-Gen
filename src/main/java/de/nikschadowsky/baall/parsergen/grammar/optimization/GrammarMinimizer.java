@@ -5,10 +5,7 @@ import de.nikschadowsky.baall.parsergen.grammar.GrammarNonterminal;
 import de.nikschadowsky.baall.parsergen.grammar.GrammarProduction;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -24,14 +21,14 @@ public class GrammarMinimizer {
         // create a new set of nonterminals with unfilled rule sets
         Map<GrammarNonterminal, GrammarBuilder.GrammarNonterminalBuilder> nonterminalBuilderMap
                 = nonterminalTranslationMap.keySet()
-                                           .stream()
-                                           .collect(Collectors.toMap(
-                                                   Function.identity(),
-                                                   nonterminal -> new GrammarBuilder.GrammarNonterminalBuilder(
-                                                           nonterminal,
-                                                           nonterminalTranslationMap
-                                                   )
-                                           ));
+                .stream()
+                .collect(Collectors.toMap(
+                        Function.identity(),
+                        nonterminal -> new GrammarBuilder.GrammarNonterminalBuilder(
+                                nonterminal,
+                                nonterminalTranslationMap
+                        )
+                ));
 
         int totalNewNonterminals;
 
@@ -54,10 +51,10 @@ public class GrammarMinimizer {
                     for (GrammarBuilder.GrammarNonterminalBuilder innerBuilder : nonterminalBuilderMap.values()) {
                         if (innerBuilder.getRuleBuilder().containsNonterminal(toBeReplaced)) {
                             innerBuilder.getRuleBuilder()
-                                        .replace(toBeReplaced, builder.getRuleBuilder().getSententialForms());
+                                    .replace(toBeReplaced, builder.getRuleBuilder().getSententialForms());
                         }
                     }
-                    if(!builder.isStartNonterminalBuilder())
+                    if (!builder.isStartNonterminalBuilder())
                         itr.remove();
                 }
             }
@@ -65,30 +62,30 @@ public class GrammarMinimizer {
 
         } while (totalNewNonterminals != nonterminalBuilderMap.size());
 
-        Set<GrammarNonterminal> newNonterminals =
+        List<GrammarNonterminal> newNonterminals =
                 nonterminalBuilderMap.values().stream()
-                                     .map(GrammarBuilder.GrammarNonterminalBuilder::build)
-                                     .collect(Collectors.toSet());
+                        .map(GrammarBuilder.GrammarNonterminalBuilder::build)
+                        .toList();
 
 
-        Set<GrammarProduction> newProductionRules = new HashSet<>();
+        List<GrammarProduction> newProductionRules = new ArrayList<>();
         newNonterminals.stream().map(GrammarNonterminal::getProductionRules).forEach(newProductionRules::addAll);
 
         return new Grammar(newNonterminals.stream()
-                                          .filter(nonterminal -> nonterminal.hasAnnotation("Start"))
-                                          .findFirst()
-                                          .orElseThrow(), newNonterminals, newProductionRules);
+                .filter(nonterminal -> nonterminal.hasAnnotation("Start"))
+                .findFirst()
+                .orElseThrow(), newNonterminals, newProductionRules);
     }
 
 
     private static @NotNull Map<GrammarNonterminal, GrammarNonterminal> createNonterminalMapping(@NotNull Grammar source) {
         return source.getAllNonterminals()
-                     .stream()
-                     .collect(Collectors.toUnmodifiableMap(
-                             Function.identity(),
-                             n -> new GrammarNonterminal(
-                                     n.getIdentifier())
-                     ));
+                .stream()
+                .collect(Collectors.toUnmodifiableMap(
+                        Function.identity(),
+                        n -> new GrammarNonterminal(
+                                n.getIdentifier())
+                ));
     }
 
 }

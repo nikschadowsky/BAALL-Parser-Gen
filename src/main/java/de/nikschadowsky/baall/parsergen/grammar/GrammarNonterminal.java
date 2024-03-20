@@ -3,15 +3,12 @@ package de.nikschadowsky.baall.parsergen.grammar;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class GrammarNonterminal implements GrammarSymbol {
 
-    private final Set<GrammarNonterminalAnnotation> annotations = new HashSet<>();
-    private final Set<GrammarProduction> productionRules = new HashSet<>();
+    private final List<GrammarNonterminalAnnotation> annotations = new ArrayList<>();
+    private final List<GrammarProduction> productionRules = new ArrayList<>();
 
     private final String identifier;
 
@@ -32,7 +29,7 @@ public class GrammarNonterminal implements GrammarSymbol {
      * @param newProductionRules production rules to add
      * @return whether this operation was successful
      */
-    public boolean addProductionRules(Set<GrammarProduction> newProductionRules) {
+    public boolean addProductionRules(List<GrammarProduction> newProductionRules) {
         if (!areProductionRulesSet) {
             productionRules.addAll(newProductionRules);
             areProductionRulesSet = true;
@@ -45,8 +42,8 @@ public class GrammarNonterminal implements GrammarSymbol {
     /**
      * @return an immutable set of this nonterminal's production rules
      */
-    public @Unmodifiable Set<GrammarProduction> getProductionRules() {
-        return Collections.unmodifiableSet(productionRules);
+    public @Unmodifiable List<GrammarProduction> getProductionRules() {
+        return Collections.unmodifiableList(productionRules);
     }
 
     public boolean areProductionRulesSet() {
@@ -59,7 +56,7 @@ public class GrammarNonterminal implements GrammarSymbol {
      * @param newAnnotations annotations to add
      * @return whether this operation was successful
      */
-    public boolean addAnnotations(Set<GrammarNonterminalAnnotation> newAnnotations) {
+    public boolean addAnnotations(List<GrammarNonterminalAnnotation> newAnnotations) {
         if (!areAnnotationsSet) {
             annotations.addAll(newAnnotations);
             areAnnotationsSet = true;
@@ -68,8 +65,8 @@ public class GrammarNonterminal implements GrammarSymbol {
         return false;
     }
 
-    public @Unmodifiable Set<GrammarNonterminalAnnotation> getAnnotations() {
-        return Collections.unmodifiableSet(annotations);
+    public @Unmodifiable List<GrammarNonterminalAnnotation> getAnnotations() {
+        return Collections.unmodifiableList(annotations);
     }
 
     public boolean hasAnnotation(@NotNull String value) {

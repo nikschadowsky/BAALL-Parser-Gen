@@ -63,13 +63,13 @@ public class GrammarReader {
 
         validateGrammarFileContent(content);
 
-        Set<GrammarNonterminal> nonterminalSet = addAllNonterminal(content);
-        Set<GrammarProduction> ruleSet = new HashSet<>(addProductionRules(nonterminalSet, content));
-        enhanceNonterminalsWithAnnotations(nonterminalSet, content);
+        List<GrammarNonterminal> nonterminals = addAllNonterminal(content);
+        List<GrammarProduction> ruleSet = addProductionRules(nonterminals, content);
+        enhanceNonterminalsWithAnnotations(nonterminals, content);
 
-        GrammarNonterminal startSymbol = determineStartSymbol(nonterminalSet);
+        GrammarNonterminal startSymbol = determineStartSymbol(nonterminals);
 
-        return new Grammar(startSymbol, nonterminalSet, ruleSet);
+        return new Grammar(startSymbol, nonterminals, ruleSet);
     }
 
     private @NotNull GrammarFileContent createFileContentContainer(@NotNull Path path) {
@@ -126,8 +126,8 @@ public class GrammarReader {
     }
 
 
-    private @NotNull Set<GrammarNonterminal> addAllNonterminal(@NotNull GrammarFileContent content) {
-        Set<GrammarNonterminal> nonterminalSet = new HashSet<>();
+    private @NotNull List<GrammarNonterminal> addAllNonterminal(@NotNull GrammarFileContent content) {
+        List<GrammarNonterminal> nonterminalSet = new ArrayList<>();
 
         for (int l = 0; l < content.lineCount(); l++) {
 
@@ -142,23 +142,23 @@ public class GrammarReader {
                 );
             }
 
-            if (!isNonterminalAlreadyInSet(nonterminalSet, identifier)) {
+            if (!isNonterminalAlreadyInList(nonterminalSet, identifier)) {
                 nonterminalSet.add(new GrammarNonterminal(identifier));
             }
         }
         return nonterminalSet;
     }
 
-    private @NotNull Set<GrammarProduction> addProductionRules(@NotNull Set<GrammarNonterminal> nonterminalSet, @NotNull GrammarFileContent content) {
-        Set<GrammarProduction> ruleSet = new HashSet<>();
+    private @NotNull List<GrammarProduction> addProductionRules(@NotNull List<GrammarNonterminal> nonterminals, @NotNull GrammarFileContent content) {
+        List<GrammarProduction> ruleSet = new ArrayList<>();
 
         for (int l = 0; l < content.lineCount(); l++) {
             String identifier = content.tokens()[l][0];
             String rules = content.tokens()[l][1];
 
-            GrammarNonterminal nonterminal = getNonterminalFromSet(nonterminalSet, identifier);
+            GrammarNonterminal nonterminal = getNonterminalFromSet(nonterminals, identifier);
             // rules for the current nonterminal
-            Set<GrammarProduction> productionRules = new HashSet<>();
+            List<GrammarProduction> productionRules = new ArrayList<>();
 
             String[] ruleStrings = rules.split("(?<!\\\\)\\|"); // any '|' without a '\' preceding
 
@@ -206,7 +206,7 @@ public class GrammarReader {
 
                         sententialForm.add(new GrammarTerminal(GrammarTerminal.TerminalType.ANY, tokenValue));
                     } else {
-                        sententialForm.add(getNonterminalFromSet(nonterminalSet, token));
+                        sententialForm.add(getNonterminalFromSet(nonterminals, token));
                     }
                 }
                 productionRules.add(new GrammarProduction(
@@ -231,8 +231,8 @@ public class GrammarReader {
         return ruleSet;
     }
 
-    private GrammarNonterminal determineStartSymbol(@NotNull Set<GrammarNonterminal> nonterminalSet) {
-        Set<GrammarNonterminal> startCandidates = nonterminalSet.stream()
+    private GrammarNonterminal determineStartSymbol(@NotNull List<GrammarNonterminal> nonterminals) {
+        Set<GrammarNonterminal> startCandidates = nonterminals.stream()
                                                                 .filter(n -> n.hasAnnotation("Start"))
                                                                 .collect(Collectors.toSet());
         if (startCandidates.size() > 1)
@@ -245,23 +245,23 @@ public class GrammarReader {
                               ));
     }
 
-    private void enhanceNonterminalsWithAnnotations(@NotNull Set<GrammarNonterminal> nonterminalSet, @NotNull GrammarFileContent content) {
+    private void enhanceNonterminalsWithAnnotations(@NotNull List<GrammarNonterminal> nonterminals, @NotNull GrammarFileContent content) {
         for (String[] token : content.tokens()) {
-            Set<GrammarNonterminalAnnotation> annotations =
-                    Set.of(Arrays.stream(ArrayUtility.subarray(token, 2, -1))
+            List<GrammarNonterminalAnnotation> annotations =
+                    List.of(Arrays.stream(ArrayUtility.subarray(token, 2, -1))
                                  .map(GrammarNonterminalAnnotation::new)
                                  .toArray(GrammarNonterminalAnnotation[]::new));
 
-            getNonterminalFromSet(nonterminalSet, token[0]).addAnnotations(annotations);
+            getNonterminalFromSet(nonterminals, token[0]).addAnnotations(annotations);
         }
     }
 
 
-    private boolean isNonterminalAlreadyInSet(@NotNull Set<GrammarNonterminal> set, @NotNull String e) {
+    private boolean isNonterminalAlreadyInList(@NotNull List<GrammarNonterminal> set, @NotNull String e) {
         return set.stream().anyMatch(token -> token.getIdentifier().equals(e.toUpperCase()));
     }
 
-    private @NotNull GrammarNonterminal getNonterminalFromSet(@NotNull Set<GrammarNonterminal> set, @NotNull String e) {
+    private @NotNull GrammarNonterminal getNonterminalFromSet(@NotNull List<GrammarNonterminal> set, @NotNull String e) {
         return set.stream()
                   .filter(token -> token.getIdentifier().equals(e.toUpperCase()))
                   .findAny()

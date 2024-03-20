@@ -4,27 +4,24 @@ import de.nikschadowsky.baall.parsergen.util.CollectionUtility;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.Collections;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class Grammar {
 
 
     private final GrammarNonterminal start;
 
-    private final Set<GrammarNonterminal> nonterminals;
+    private final List<GrammarNonterminal> nonterminals;
 
-    private final Set<GrammarProduction> grammarProductions;
+    private final List<GrammarProduction> grammarProductions;
 
     public Grammar(
             @NotNull(value = "Start symbol cannot be NULL", exception = GrammarSyntaxException.class)
             GrammarNonterminal start,
             @NotNull(value = "Nonterminal set cannot be NULL", exception = GrammarSyntaxException.class)
-            Set<GrammarNonterminal> nonterminals,
+            List<GrammarNonterminal> nonterminals,
             @NotNull(value = "Production rule set cannot be NULL", exception = GrammarSyntaxException.class)
-            Set<GrammarProduction> grammarProductions
+            List<GrammarProduction> grammarProductions
     ) {
         this.start = start;
         this.nonterminals = nonterminals;
@@ -35,8 +32,8 @@ public class Grammar {
         return start;
     }
 
-    public @Unmodifiable Set<GrammarNonterminal> getAllNonterminals() {
-        return Collections.unmodifiableSet(nonterminals);
+    public @Unmodifiable List<GrammarNonterminal> getAllNonterminals() {
+        return Collections.unmodifiableList(nonterminals);
     }
 
     public @NotNull GrammarProduction getRuleQualifiedById(int identifier) {
