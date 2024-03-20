@@ -29,9 +29,9 @@ class GrammarSymbolTest {
         terminalExactSameValue2 = new GrammarTerminal(withExactValueMatching, "same");
         terminalExactDiffValue1 = new GrammarTerminal(withExactValueMatching, "different");
 
-        terminalNotExactSameValue1 = new GrammarTerminal(GrammarTerminal.TerminalType.STRING, "same");
-        terminalNotExactSameValue2 = new GrammarTerminal(GrammarTerminal.TerminalType.BOOLEAN, "same");
-        terminalNotExactDiffValue1 = new GrammarTerminal(GrammarTerminal.TerminalType.BOOLEAN, "different");
+        terminalNotExactSameValue1 = new GrammarTerminal(GrammarTerminal.TerminalType.BOOLEAN, "same");
+        terminalNotExactSameValue2 = new GrammarTerminal(GrammarTerminal.TerminalType.BOOLEAN, "same2");
+        terminalNotExactDiffValue1 = new GrammarTerminal(GrammarTerminal.TerminalType.STRING, "different");
 
         terminalAny = new GrammarTerminal(GrammarTerminal.TerminalType.ANY, "same");
 
