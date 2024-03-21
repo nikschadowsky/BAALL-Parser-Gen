@@ -65,9 +65,9 @@ public class ParserClassGenerator implements JavaSourceGenerator {
     }
 
 
-    private CodeBlock generateConditionCodeBlock(GrammarProductionTreeNode root) {
-        List<GrammarProductionTreeNode.SymbolNode> children = root.getChildren();
+     public CodeBlock generateConditionCodeBlock(GrammarProductionTreeNode.Root root) {
         CodeBlock.Builder builder = CodeBlock.builder();
+        List<GrammarProductionTreeNode.SymbolNode> children = root.getChildren();
 
         for (int i = 0; i < children.size(); i++) {
             builder.add(generateCodeForCondition(children.get(i), i == 0));
