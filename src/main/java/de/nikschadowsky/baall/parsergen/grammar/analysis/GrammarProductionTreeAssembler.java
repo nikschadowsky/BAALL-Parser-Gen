@@ -9,6 +9,9 @@ import org.jetbrains.annotations.NotNull;
  * File created on 15.03.2024
  */
 public class GrammarProductionTreeAssembler {
+    private GrammarProductionTreeAssembler() {
+    }
+
     public static @NotNull GrammarProductionTreeNode.Root generateConditionTree(@NotNull GrammarNonterminal nonterminal) {
         boolean hasEpsilonRule =
                 nonterminal.getProductionRules().stream().anyMatch(GrammarProduction::isEpsilonProduction);
