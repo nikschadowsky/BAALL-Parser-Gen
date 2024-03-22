@@ -22,8 +22,8 @@ public class GrammarProductionTreeAssembler {
             GrammarProductionTreeNode current = root;
 
             GrammarSymbol[] sententialForm = rule.getSententialForm();
-            for (GrammarSymbol symbol : sententialForm) {
-                current = current.addUniqueChild(symbol);
+            for (int i = 0; i < sententialForm.length; i++) {
+                current = current.addUniqueChild(sententialForm[i], i == sententialForm.length - 1);
             }
         }
 

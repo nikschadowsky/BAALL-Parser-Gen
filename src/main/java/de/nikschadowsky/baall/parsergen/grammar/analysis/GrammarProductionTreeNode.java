@@ -16,17 +16,23 @@ public abstract class GrammarProductionTreeNode {
 
     protected final List<SymbolNode> children = new ArrayList<>();
 
-    public SymbolNode addUniqueChild(@NotNull GrammarSymbol symbol) {
+    public SymbolNode addUniqueChild(@NotNull GrammarSymbol symbol, boolean isFinal) {
         Optional<SymbolNode> optExistingNode =
                 children.stream().filter(symbolNode -> symbol.symbolDeepEquals(symbolNode.getValue())).findAny();
 
         if (optExistingNode.isEmpty()) {
             SymbolNode e = new SymbolNode(symbol);
+            if (isFinal) {
+                e.setFinal();
+            }
             children.add(e);
             return e;
         }
-
-        return optExistingNode.get();
+        SymbolNode node = optExistingNode.get();
+        if (isFinal) {
+            node.setFinal();
+        }
+        return node;
     }
 
     @Override
@@ -46,6 +52,8 @@ public abstract class GrammarProductionTreeNode {
 
         private final GrammarSymbol value;
 
+        private boolean isFinal;
+
         public SymbolNode(@NotNull GrammarSymbol value) {
             this.value = value;
         }
@@ -57,12 +65,21 @@ public abstract class GrammarProductionTreeNode {
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof SymbolNode node) {
-                return value.symbolDeepEquals(node.value) && super.equals(obj);
+                return value.symbolDeepEquals(node.value) &&
+                        isFinal == node.isFinal &&
+                        super.equals(obj);
             }
 
             return false;
         }
 
+        public void setFinal() {
+            isFinal = true;
+        }
+
+        public boolean isFinal() {
+            return isFinal;
+        }
     }
 
     public static class Root extends GrammarProductionTreeNode {
