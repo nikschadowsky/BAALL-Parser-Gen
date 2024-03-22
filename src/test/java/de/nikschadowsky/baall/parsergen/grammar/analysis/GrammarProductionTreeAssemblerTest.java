@@ -51,9 +51,9 @@ class GrammarProductionTreeAssemblerTest {
 
         GrammarProductionTreeNode.Root expected = new GrammarProductionTreeNode.Root(false);
 
-        expected.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("a"))
-                .addUniqueChild(GrammarUtility.getTerminalWithTypeAny("b"))
-                .addUniqueChild(GrammarUtility.getTerminalWithTypeAny("c"));
+        expected.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("a"),false)
+                .addUniqueChild(GrammarUtility.getTerminalWithTypeAny("b"),false)
+                .addUniqueChild(GrammarUtility.getTerminalWithTypeAny("c"),true);
 
         return Arguments.of(List.of(linear), expected);
     }
@@ -67,10 +67,10 @@ class GrammarProductionTreeAssemblerTest {
 
         GrammarProductionTreeNode.Root expected = new GrammarProductionTreeNode.Root(false);
 
-        GrammarProductionTreeNode.SymbolNode firstNode = expected.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("a"));
-        firstNode.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("b1"));
-        firstNode.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("b2"));
-        firstNode.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("b3"));
+        GrammarProductionTreeNode.SymbolNode firstNode = expected.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("a"), false);
+        firstNode.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("b1"), true);
+        firstNode.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("b2"), true);
+        firstNode.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("b3"), true);
 
         return Arguments.of(List.of(left, middle, right), expected);
     }
@@ -99,13 +99,13 @@ class GrammarProductionTreeAssemblerTest {
 
 
         GrammarProductionTreeNode.Root expected = new GrammarProductionTreeNode.Root(false);
-        GrammarProductionTreeNode.SymbolNode a = expected.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("a"));
+        GrammarProductionTreeNode.SymbolNode a = expected.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("a"), false);
 
-        a.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("b1")).addUniqueChild(GrammarUtility.getTerminalWithTypeAny("c1"));
+        a.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("b1"), false).addUniqueChild(GrammarUtility.getTerminalWithTypeAny("c1"), true);
 
-        GrammarProductionTreeNode.SymbolNode b2 = a.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("b2"));
-        b2.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("c1"));
-        b2.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("c2"));
+        GrammarProductionTreeNode.SymbolNode b2 = a.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("b2"), false);
+        b2.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("c1"), true);
+        b2.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("c2"), true);
 
         return Arguments.of(List.of(left, mid, right), expected);
     }

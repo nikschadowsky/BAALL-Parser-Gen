@@ -26,19 +26,23 @@ class GrammarProductionTreeNodeTest {
         assertFalse(t1.symbolDeepEquals(t3));
         assertFalse(t2.symbolDeepEquals(t3));
 
-        node.addUniqueChild(t1);
+        node.addUniqueChild(t1, true);
         assertEquals(1, node.getChildren().size());
-        node.addUniqueChild(t1);
+        assertTrue(node.getChildren().get(0).isFinal());
+        node.addUniqueChild(t1, false);
         // adding the same element should not affect size
         assertEquals(1, node.getChildren().size());
+        assertTrue(node.getChildren().get(0).isFinal());
 
         // adding an element considered equal should not affect size
-        node.addUniqueChild(t2);
+        node.addUniqueChild(t2, false);
         assertEquals(1, node.getChildren().size());
+        assertTrue(node.getChildren().get(0).isFinal());
 
         // but adding an element considered NOT equal should increase the size by one
-        node.addUniqueChild(t3);
+        node.addUniqueChild(t3, false);
         assertEquals(2, node.getChildren().size());
+        assertFalse(node.getChildren().get(1).isFinal());
     }
 
     @ParameterizedTest
@@ -46,22 +50,18 @@ class GrammarProductionTreeNodeTest {
     void testEquals(boolean hasEpsilonRule) {
         // test root node alone
         GrammarProductionTreeNode.Root root = createRootNode(hasEpsilonRule);
-
         assertEquals(createRootNode(hasEpsilonRule), root);
 
         // test symbol node alone
         GrammarProductionTreeNode.SymbolNode first = createSymbolNodeWithName("first");
-
         assertEquals(createSymbolNodeWithName("first"), first);
 
         // test combination of both
-        root.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("first"));
-
-        GrammarProductionTreeNode.Root expectedRoot = new GrammarProductionTreeNode.Root(hasEpsilonRule);
+        root.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("first"), true);
+        GrammarProductionTreeNode.Root expectedRoot = createRootNode(hasEpsilonRule);
         assertNotEquals(expectedRoot, root);
 
-        expectedRoot.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("first"));
-
+        expectedRoot.addUniqueChild(GrammarUtility.getTerminalWithTypeAny("first"), true);
         assertEquals(expectedRoot, root);
     }
 
