@@ -13,6 +13,7 @@ public interface JavaSourceGenerator {
      ClassName TERMINAL_TYPE_INTERFACE_TYPENAME = ClassName.bestGuess("TerminalType");
      ClassName TERMINAL_COMPARABLE_INTERFACE_TYPENAME = ClassName.bestGuess("TerminalComparable");
      ClassName PARSER_CLASS_TYPENAME = ClassName.bestGuess("Parser");
+     ClassName PARSER_INNER_TERMINAL_TYPENAME = ClassName.bestGuess("TerminalSymbol");
 
     @NotNull TypeSpec generateTypeSpec(@NotNull Grammar grammar);
 

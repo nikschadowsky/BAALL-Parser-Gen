@@ -40,17 +40,34 @@ public class ParserClassGenerator implements JavaSourceGenerator {
         return null;
     }
 
-    private MethodSpec generateParserMethodForNonterminal(GrammarNonterminal nonterminal) {
+    private MethodSpec generateInitMethod() {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("init").addModifiers(Modifier.PRIVATE);
+
+
+
+        return builder.build();
+    }
+
+    private MethodSpec generateConstructor() {
         ParameterSpec terminalQueueParameter =
                 ParameterSpec.builder(ParameterizedTypeName.get(
                         ClassName.get(Queue.class),
                         TERMINAL_COMPARABLE_INTERFACE_TYPENAME
                 ), "tokens").build();
 
-        MethodSpec.Builder methodSpec =
-                MethodSpec.methodBuilder(getParseMethodName(nonterminal)).returns(TypeName.BOOLEAN)
-                          .addParameter(terminalQueueParameter);
+        MethodSpec.Builder builder = MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC);
 
+        builder.addParameter(terminalQueueParameter);
+        builder.addStatement("this.queue = queue");
+
+        builder.addStatement("init()");
+
+        return builder.build();
+    }
+
+    private MethodSpec generateParserMethodForNonterminal(GrammarNonterminal nonterminal) {
+        MethodSpec.Builder methodSpec =
+                MethodSpec.methodBuilder(getParseMethodName(nonterminal)).returns(TypeName.BOOLEAN);
 
         return methodSpec.build();
     }
@@ -65,14 +82,19 @@ public class ParserClassGenerator implements JavaSourceGenerator {
     }
 
 
-     public CodeBlock generateConditionCodeBlock(GrammarProductionTreeNode.Root root) {
+    public CodeBlock generateConditionCodeBlock(GrammarProductionTreeNode.Root root) {
         CodeBlock.Builder builder = CodeBlock.builder();
         List<GrammarProductionTreeNode.SymbolNode> children = root.getChildren();
 
         for (int i = 0; i < children.size(); i++) {
             builder.add(generateCodeForCondition(children.get(i), i == 0));
         }
-
+        if (root.hasEpsilonRule()) {
+            builder.addStatement("return true");
+        }else {
+            builder.addStatement("// TODO add behaviour when this symbol couldn't be parsed");
+            builder.addStatement("throw new RuntimeException(\"Expected '?' but got '?'!\")");
+        }
         return builder.build();
     }
 
@@ -81,14 +103,14 @@ public class ParserClassGenerator implements JavaSourceGenerator {
 
         String condition = (
                 conditionNode.getValue().isTerminal()
-                        ? "TERMINAL_MAP.get(\"%s\").symbolMatches(\"queue.remove()\")"
-                        : "%s()"
-        ).formatted(conditionNode.getValue().getFormatted());
+                        ? "TERMINAL_MAP.get(\"%s\").symbolMatches(queue.poll())".formatted(conditionNode.getValue().getFormatted())
+                        : "%s(queue)".formatted(getParseMethodName((GrammarNonterminal) conditionNode.getValue()))
+        );
 
         if (isFirst) {
             builder.beginControlFlow("if (%s)".formatted(condition));
         } else {
-            builder.nextControlFlow("else if (%s)".formatted(condition));
+            builder.beginControlFlow("else if (%s)".formatted(condition));
         }
 
         List<GrammarProductionTreeNode.SymbolNode> children = conditionNode.getChildren();
@@ -96,7 +118,7 @@ public class ParserClassGenerator implements JavaSourceGenerator {
             builder.add(generateCodeForCondition(children.get(i), i == 0));
         }
 
-        if (children.isEmpty()) {
+        if (children.isEmpty() || conditionNode.isFinal()) {
             builder.addStatement("return true");
         }
         builder.endControlFlow();
