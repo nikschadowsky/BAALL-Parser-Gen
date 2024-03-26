@@ -1,4 +1,4 @@
-package de.nikschadowsky.baall.parsergen.generator.util;
+package de.nikschadowsky.baall.parsergen.grammar.analysis;
 
 import de.nikschadowsky.baall.parsergen.grammar.GrammarTerminal;
 
