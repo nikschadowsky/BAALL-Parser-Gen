@@ -45,28 +45,6 @@ public class TerminalTypeEnumGenerator implements JavaSourceGenerator {
                 )
         ));
 
-        MethodSpec constructorMethodSpec =
-                MethodSpec.constructorBuilder()
-                          .addParameter(ClassName.get(String.class), "description")
-                          .addParameter(TypeName.BOOLEAN, "hasExactValueMatching")
-                          .addStatement("this.$N = $N", "description", "description")
-                          .addStatement("this.$N = $N", "hasExactValueMatching", "hasExactValueMatching")
-                          .build();
-
-        MethodSpec getDescriptionMethodSpec =
-                MethodSpec.methodBuilder("getDescription")
-                          .addModifiers(Modifier.PUBLIC)
-                          .returns(ClassName.get(String.class))
-                          .addStatement("return $N", "description")
-                          .build();
-
-        MethodSpec hasExactTerminalMatchingMethodSpec =
-                MethodSpec.methodBuilder("hasExactValueMatching")
-                          .addModifiers(Modifier.PUBLIC)
-                          .returns(TypeName.BOOLEAN)
-                          .addStatement("return $N", "hasExactValueMatching")
-                          .build();
-
         terminalTypeInterfaceTypeSpec.addField(
                 ClassName.get(String.class),
                 "description",
@@ -80,8 +58,32 @@ public class TerminalTypeEnumGenerator implements JavaSourceGenerator {
                 Modifier.FINAL
         );
 
+        MethodSpec constructorMethodSpec =
+                MethodSpec.constructorBuilder()
+                          .addParameter(ClassName.get(String.class), "description")
+                          .addParameter(TypeName.BOOLEAN, "hasExactValueMatching")
+                          .addStatement("this.$N = $N", "description", "description")
+                          .addStatement("this.$N = $N", "hasExactValueMatching", "hasExactValueMatching")
+                          .build();
+
         terminalTypeInterfaceTypeSpec.addMethod(constructorMethodSpec);
+
+        MethodSpec getDescriptionMethodSpec =
+                MethodSpec.methodBuilder("getDescription")
+                          .addModifiers(Modifier.PUBLIC)
+                          .returns(ClassName.get(String.class))
+                          .addStatement("return $N", "description")
+                          .build();
+
         terminalTypeInterfaceTypeSpec.addMethod(getDescriptionMethodSpec);
+
+        MethodSpec hasExactTerminalMatchingMethodSpec =
+                MethodSpec.methodBuilder("hasExactValueMatching")
+                          .addModifiers(Modifier.PUBLIC)
+                          .returns(TypeName.BOOLEAN)
+                          .addStatement("return $N", "hasExactValueMatching")
+                          .build();
+
         terminalTypeInterfaceTypeSpec.addMethod(hasExactTerminalMatchingMethodSpec);
 
         return terminalTypeInterfaceTypeSpec.build();
