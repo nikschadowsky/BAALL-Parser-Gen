@@ -1,39 +1,42 @@
 package de.nikschadowsky.baall.parsergen.grammar;
 
 import de.nikschadowsky.baall.parsergen.util.CollectionUtility;
+import de.nikschadowsky.baall.parsergen.util.ImmutableLinkedHashSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 
 public class Grammar {
 
 
     private final GrammarNonterminal start;
 
-    private final List<GrammarNonterminal> nonterminals;
+    private final LinkedHashSet<GrammarNonterminal> nonterminals;
 
-    private final List<GrammarProduction> grammarProductions;
+    private final LinkedHashSet<GrammarProduction> grammarProductions;
 
-    public Grammar(
-            @NotNull(value = "Start symbol cannot be NULL", exception = GrammarSyntaxException.class)
-            GrammarNonterminal start,
-            @NotNull(value = "Nonterminal set cannot be NULL", exception = GrammarSyntaxException.class)
-            List<GrammarNonterminal> nonterminals,
-            @NotNull(value = "Production rule set cannot be NULL", exception = GrammarSyntaxException.class)
-            List<GrammarProduction> grammarProductions
-    ) {
+    private final LinkedHashSet<GrammarTerminal> terminals;
+
+    public Grammar(@NotNull GrammarNonterminal start, @NotNull LinkedHashSet<GrammarNonterminal> nonterminals, @NotNull LinkedHashSet<GrammarProduction> grammarProductions, @NotNull LinkedHashSet<GrammarTerminal> terminals) {
         this.start = start;
         this.nonterminals = nonterminals;
         this.grammarProductions = grammarProductions;
+        this.terminals = terminals;
     }
 
     public @NotNull GrammarNonterminal getStart() {
         return start;
     }
 
-    public @Unmodifiable List<GrammarNonterminal> getAllNonterminals() {
-        return Collections.unmodifiableList(nonterminals);
+    public @Unmodifiable LinkedHashSet<GrammarNonterminal> getAllNonterminals() {
+        return ImmutableLinkedHashSet.createFrom(nonterminals);
+    }
+
+    public @Unmodifiable LinkedHashSet<GrammarTerminal> getAllTerminals() {
+        return ImmutableLinkedHashSet.createFrom(terminals);
     }
 
     public @NotNull GrammarProduction getRuleQualifiedById(int identifier) {
@@ -46,11 +49,12 @@ public class Grammar {
 
     @Override
     public String toString() {
-        return "Grammar{%n     %s%n}"
-                .formatted(String.join(
-                        "\n     ",
-                        nonterminals.stream().map(GrammarNonterminal::toString).toList()
-                ));
+        return "Grammar{%n     %s%n}".formatted(String.join(
+                "\n     ",
+                nonterminals.stream()
+                            .map(GrammarNonterminal::toString)
+                            .toList()
+        ));
     }
 
     @Override
@@ -58,17 +62,13 @@ public class Grammar {
         if (obj == this) return true;
 
         if (obj instanceof Grammar other) {
-            return start.symbolDeepEquals(other.start) &&
-                    CollectionUtility.shallowCompareCollections(
-                            nonterminals,
-                            other.getAllNonterminals(),
-                            GrammarNonterminal::symbolDeepEquals
-                    ) &&
-                    CollectionUtility.shallowCompareCollections(grammarProductions, other.grammarProductions);
             return start.symbolDeepEquals(other.start) && CollectionUtility.compareCollections(
                     nonterminals,
                     other.nonterminals,
                     GrammarNonterminal::symbolDeepEquals
+            ) && CollectionUtility.shallowCompareCollections(
+                    terminals,
+                    other.terminals
             ) && CollectionUtility.shallowCompareCollections(grammarProductions, other.grammarProductions);
         }
 
