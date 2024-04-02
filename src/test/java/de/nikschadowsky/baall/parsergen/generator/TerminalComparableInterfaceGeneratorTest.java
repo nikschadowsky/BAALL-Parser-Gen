@@ -1,7 +1,7 @@
 package de.nikschadowsky.baall.parsergen.generator;
 
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import de.nikschadowsky.baall.parsergen.grammar.Grammar;
 import org.junit.jupiter.api.Test;
@@ -27,15 +27,21 @@ class TerminalComparableInterfaceGeneratorTest {
         assertEquals("TerminalComparable", interfaceSpec.name);
         assertTrue(interfaceSpec.hasModifier(Modifier.PUBLIC));
 
-        assertEquals(1, interfaceSpec.methodSpecs.size());
-        MethodSpec method = interfaceSpec.methodSpecs.get(0);
-        assertEquals("symbolMatches", method.name);
+        assertEquals(2, interfaceSpec.methodSpecs.size());
 
-        assertEquals(1, method.parameters.size());
-        assertEquals("terminal", method.parameters.get(0).name);
-        assertEquals("TerminalComparable", method.parameters.get(0).type.toString());
+        MethodSpec getTypeMethod = interfaceSpec.methodSpecs.get(0);
+        assertEquals("getType", getTypeMethod.name);
 
-        assertEquals(TypeName.BOOLEAN, method.returnType);
+        assertEquals(0, getTypeMethod.parameters.size());
+        assertEquals(JavaSourceGenerator.TERMINAL_TYPE_ENUM_TYPENAME, getTypeMethod.returnType);
+
+        MethodSpec getValueMethod = interfaceSpec.methodSpecs.get(1);
+        assertEquals("getValue", getValueMethod.name);
+
+        assertEquals(0, getValueMethod.parameters.size());
+        assertEquals(ClassName.get(String.class), getValueMethod.returnType);
+
+        assertEquals(ClassName.get(String.class), getValueMethod.returnType);
     }
 
 
