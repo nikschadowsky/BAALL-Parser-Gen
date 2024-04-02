@@ -19,10 +19,10 @@ public class CollectionUtility {
     }
 
     public static <T> boolean shallowCompareCollections(Collection<? extends T> c1, Collection<? extends T> c2) {
-        return shallowCompareCollections(c1, c2, Objects::equals);
+        return compareCollections(c1, c2, Objects::equals);
     }
 
-    public static <T> boolean shallowCompareCollections(
+    public static <T> boolean compareCollections(
             Collection<? extends T> c1,
             Collection<? extends T> c2,
             BiPredicate<T, T> comparePredicate

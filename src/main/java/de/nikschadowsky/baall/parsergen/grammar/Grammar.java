@@ -65,6 +65,11 @@ public class Grammar {
                             GrammarNonterminal::symbolDeepEquals
                     ) &&
                     CollectionUtility.shallowCompareCollections(grammarProductions, other.grammarProductions);
+            return start.symbolDeepEquals(other.start) && CollectionUtility.compareCollections(
+                    nonterminals,
+                    other.nonterminals,
+                    GrammarNonterminal::symbolDeepEquals
+            ) && CollectionUtility.shallowCompareCollections(grammarProductions, other.grammarProductions);
         }
 
         return super.equals(obj);
