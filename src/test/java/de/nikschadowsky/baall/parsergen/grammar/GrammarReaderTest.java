@@ -6,9 +6,12 @@ import de.nikschadowsky.baall.parsergen.util.FileUtility;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
+import static de.nikschadowsky.baall.parsergen._utility.Assertions.assertCollectionShallowEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GrammarReaderTest {
@@ -17,16 +20,26 @@ class GrammarReaderTest {
 
     @Test
     void testCreateGrammar() {
-        Grammar g = GrammarReader.getInstance().generateGrammar(FileUtility.getPathFromClasspath("GrammarReaderTestFile.grammar"));
+        Grammar g = GrammarReader.getInstance()
+                                 .generateGrammar(FileUtility.getPathFromClasspath("GrammarReaderTestFile.grammar"));
 
         assertTrue(g.getStart().getIdentifier().equalsIgnoreCase("start"));
 
         Set<String> testNonterminals = Set.of("START", "A", "B", "END");
+        assertTrue(g.getAllNonterminals().stream().allMatch(elem -> testNonterminals.contains(elem.getIdentifier())));
 
-        assertTrue(g.getAllNonterminals()
-                    .stream()
-                    .map(elem -> testNonterminals.contains(elem.getIdentifier()))
-                    .reduce(true, (a, b) -> a && b));
+        Set<Map.Entry<String, GrammarTerminal.TerminalType>> testTerminals = Set.of(
+                Map.entry("T", GrammarTerminal.TerminalType.ANY), Map.entry("|", GrammarTerminal.TerminalType.ANY)
+        );
+
+        assertCollectionShallowEquals(
+                testTerminals,
+                g.getAllTerminals()
+                 .stream()
+                 .map(t -> Map.entry(t.value(), t.type()))
+                 .collect(Collectors.toSet())
+        );
+
 
         assertEquals(4, g.getAllNonterminals().size());
 
@@ -53,8 +66,9 @@ class GrammarReaderTest {
 
     @Test
     void testCreateGrammarWithStartNotInFirstLine() {
-        Grammar g =
-                GrammarReader.getInstance().generateGrammar(FileUtility.getPathFromClasspath("GrammarReaderStartInLastLineTestFile.grammar"));
+        Grammar g = GrammarReader.getInstance()
+                                 .generateGrammar(FileUtility.getPathFromClasspath(
+                                         "GrammarReaderStartInLastLineTestFile.grammar"));
 
         assertEquals(GrammarUtility.getNonterminal(g, "B"), g.getStart());
         assertTrue(GrammarUtility.getNonterminal(g, "START").getAnnotations().isEmpty());
@@ -62,10 +76,9 @@ class GrammarReaderTest {
 
     @Test
     void testCreateGrammarWithMultipleAnnotations() {
-        Grammar g =
-                GrammarReader.getInstance()
-                             .generateGrammar(FileUtility.getPathFromClasspath(
-                                     "GrammarReaderNonterminalWithMultipleAnnotationsTestFile.grammar"));
+        Grammar g = GrammarReader.getInstance()
+                                 .generateGrammar(FileUtility.getPathFromClasspath(
+                                         "GrammarReaderNonterminalWithMultipleAnnotationsTestFile.grammar"));
 
         assertEquals(GrammarUtility.getNonterminal(g, "A"), g.getStart());
         assertEquals(4, g.getStart().getAnnotations().size());
@@ -75,7 +88,9 @@ class GrammarReaderTest {
     void testCreateGrammarSyntaxError() {
         Exception e = assertThrows(
                 GrammarSyntaxException.class,
-                () -> GrammarReader.getInstance().generateGrammar(FileUtility.getPathFromClasspath("GrammarReaderTestSyntaxError.grammar"))
+                () -> GrammarReader.getInstance()
+                                   .generateGrammar(FileUtility.getPathFromClasspath(
+                                           "GrammarReaderTestSyntaxError.grammar"))
         );
 
         String expected = "Missing symbols";
@@ -89,7 +104,9 @@ class GrammarReaderTest {
     void testCreateGrammarEpsilonError() {
         Exception e = assertThrows(
                 GrammarSyntaxException.class,
-                () -> GrammarReader.getInstance().generateGrammar(FileUtility.getPathFromClasspath("GrammarReaderTestEpsilonError.grammar"))
+                () -> GrammarReader.getInstance()
+                                   .generateGrammar(FileUtility.getPathFromClasspath(
+                                           "GrammarReaderTestEpsilonError.grammar"))
         );
 
         String expected = "Meta symbols cannot be used as identifiers for nonterminals!";
