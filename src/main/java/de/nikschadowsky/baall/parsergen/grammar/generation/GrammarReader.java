@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
  * consists of production rules, separated by a linefeed. A {@link GrammarProduction} always consists of a
  * {@link GrammarNonterminal} identifier followed by an arrow operator '->' and a series of rules separated by a pipe
  * '|' consisting of identifiers for {@link GrammarSymbol GrammarSymbols} separated by a space. These symbols can either
- * be {@link GrammarNonterminal GrammarNonterminals}, {@link GrammarTerminal Tokens} surrounded by "double quotes" or meta
- * symbols. Meta symbols always begin with an underscore ('_'), and may be of the following list of recognized meta
+ * be {@link GrammarNonterminal GrammarNonterminals}, {@link GrammarTerminal Tokens} surrounded by "double quotes" or
+ * meta symbols. Meta symbols always begin with an underscore ('_'), and may be of the following list of recognized meta
  * symbols:
  * <ul>
  *     <li>
@@ -63,13 +63,14 @@ public class GrammarReader {
 
         validateGrammarFileContent(content);
 
-        List<GrammarNonterminal> nonterminals = addAllNonterminal(content);
-        List<GrammarProduction> ruleSet = addProductionRules(nonterminals, content);
+        LinkedHashSet<GrammarNonterminal> nonterminals = addAllNonterminal(content);
+        LinkedHashSet<GrammarProduction> ruleSet = addProductionRules(nonterminals, content);
+        LinkedHashSet<GrammarTerminal> terminals = addTerminals(ruleSet);
         enhanceNonterminalsWithAnnotations(nonterminals, content);
 
         GrammarNonterminal startSymbol = determineStartSymbol(nonterminals);
 
-        return new Grammar(startSymbol, nonterminals, ruleSet);
+        return new Grammar(startSymbol, nonterminals, ruleSet, terminals);
     }
 
     private @NotNull GrammarFileContent createFileContentContainer(@NotNull Path path) {
@@ -126,8 +127,8 @@ public class GrammarReader {
     }
 
 
-    private @NotNull List<GrammarNonterminal> addAllNonterminal(@NotNull GrammarFileContent content) {
-        List<GrammarNonterminal> nonterminalSet = new ArrayList<>();
+    private @NotNull LinkedHashSet<GrammarNonterminal> addAllNonterminal(@NotNull GrammarFileContent content) {
+        LinkedHashSet<GrammarNonterminal> nonterminalSet = new LinkedHashSet<>();
 
         for (int l = 0; l < content.lineCount(); l++) {
 
@@ -142,15 +143,15 @@ public class GrammarReader {
                 );
             }
 
-            if (!isNonterminalAlreadyInList(nonterminalSet, identifier)) {
+            if (!isNonterminalAlreadyInSet(nonterminalSet, identifier)) {
                 nonterminalSet.add(new GrammarNonterminal(identifier));
             }
         }
         return nonterminalSet;
     }
 
-    private @NotNull List<GrammarProduction> addProductionRules(@NotNull List<GrammarNonterminal> nonterminals, @NotNull GrammarFileContent content) {
-        List<GrammarProduction> ruleSet = new ArrayList<>();
+    private @NotNull LinkedHashSet<GrammarProduction> addProductionRules(@NotNull LinkedHashSet<GrammarNonterminal> nonterminals, @NotNull GrammarFileContent content) {
+        LinkedHashSet<GrammarProduction> ruleSet = new LinkedHashSet<>();
 
         for (int l = 0; l < content.lineCount(); l++) {
             String identifier = content.tokens()[l][0];
@@ -231,10 +232,24 @@ public class GrammarReader {
         return ruleSet;
     }
 
-    private GrammarNonterminal determineStartSymbol(@NotNull List<GrammarNonterminal> nonterminals) {
+    private LinkedHashSet<GrammarTerminal> addTerminals(LinkedHashSet<GrammarProduction> productionRules) {
+        LinkedHashSet<GrammarTerminal> terminals = new LinkedHashSet<>();
+
+        for (GrammarProduction rule : productionRules) {
+            for (GrammarSymbol symbol : rule.getSententialForm()) {
+                if (symbol.isTerminal()) {
+                    terminals.add(((GrammarTerminal) symbol));
+                }
+            }
+        }
+
+        return terminals;
+    }
+
+    private GrammarNonterminal determineStartSymbol(@NotNull LinkedHashSet<GrammarNonterminal> nonterminals) {
         Set<GrammarNonterminal> startCandidates = nonterminals.stream()
-                                                                .filter(n -> n.hasAnnotation("Start"))
-                                                                .collect(Collectors.toSet());
+                                                              .filter(n -> n.hasAnnotation("Start"))
+                                                              .collect(Collectors.toSet());
         if (startCandidates.size() > 1)
             throw new GrammarSyntaxException("Multiple nonterminals annotated with @Start!");
 
@@ -245,23 +260,23 @@ public class GrammarReader {
                               ));
     }
 
-    private void enhanceNonterminalsWithAnnotations(@NotNull List<GrammarNonterminal> nonterminals, @NotNull GrammarFileContent content) {
+    private void enhanceNonterminalsWithAnnotations(@NotNull LinkedHashSet<GrammarNonterminal> nonterminals, @NotNull GrammarFileContent content) {
         for (String[] token : content.tokens()) {
             List<GrammarNonterminalAnnotation> annotations =
                     List.of(Arrays.stream(ArrayUtility.subarray(token, 2, -1))
-                                 .map(GrammarNonterminalAnnotation::new)
-                                 .toArray(GrammarNonterminalAnnotation[]::new));
+                                  .map(GrammarNonterminalAnnotation::new)
+                                  .toArray(GrammarNonterminalAnnotation[]::new));
 
             getNonterminalFromSet(nonterminals, token[0]).addAnnotations(annotations);
         }
     }
 
 
-    private boolean isNonterminalAlreadyInList(@NotNull List<GrammarNonterminal> set, @NotNull String e) {
+    private boolean isNonterminalAlreadyInSet(@NotNull LinkedHashSet<GrammarNonterminal> set, @NotNull String e) {
         return set.stream().anyMatch(token -> token.getIdentifier().equals(e.toUpperCase()));
     }
 
-    private @NotNull GrammarNonterminal getNonterminalFromSet(@NotNull List<GrammarNonterminal> set, @NotNull String e) {
+    private @NotNull GrammarNonterminal getNonterminalFromSet(@NotNull LinkedHashSet<GrammarNonterminal> set, @NotNull String e) {
         return set.stream()
                   .filter(token -> token.getIdentifier().equals(e.toUpperCase()))
                   .findAny()
