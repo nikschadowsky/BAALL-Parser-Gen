@@ -33,7 +33,7 @@ public class TerminalTypeEnumGenerator implements JavaSourceGenerator {
     @Override
     public @NotNull TypeSpec generateTypeSpec(@NotNull Grammar grammar) {
         TypeSpec.Builder terminalTypeInterfaceTypeSpec =
-                TypeSpec.enumBuilder(TERMINAL_TYPE_INTERFACE_TYPENAME).addModifiers(Modifier.PUBLIC);
+                TypeSpec.enumBuilder(TERMINAL_TYPE_ENUM_TYPENAME).addModifiers(Modifier.PUBLIC);
 
         List<GrammarTerminal.TerminalType> entries = List.of(GrammarTerminal.TerminalType.values());
 

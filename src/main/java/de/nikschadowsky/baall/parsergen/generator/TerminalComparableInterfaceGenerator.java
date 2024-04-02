@@ -1,6 +1,5 @@
 package de.nikschadowsky.baall.parsergen.generator;
 
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import de.nikschadowsky.baall.parsergen.grammar.Grammar;
@@ -26,23 +25,20 @@ public class TerminalComparableInterfaceGenerator implements JavaSourceGenerator
     private TerminalComparableInterfaceGenerator() {
     }
 
-
     /**
      * @param grammar the {@link Grammar} object to generate this {@link TypeSpec} for
      */
     @Override
     public @NotNull TypeSpec generateTypeSpec(@NotNull Grammar grammar) {
-        MethodSpec typeGetterMethod =
-                MethodSpec.methodBuilder("getType")
-                          .returns(TERMINAL_TYPE_INTERFACE_TYPENAME)
-                          .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
-                          .build();
+        MethodSpec typeGetterMethod = MethodSpec.methodBuilder("getType")
+                                                .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                                                .returns(TERMINAL_TYPE_ENUM_TYPENAME)
+                                                .build();
 
-        MethodSpec valueGetterMethod =
-                MethodSpec.methodBuilder("getValue")
-                          .returns(ClassName.get(String.class))
-                          .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
-                          .build();
+        MethodSpec valueGetterMethod = MethodSpec.methodBuilder("getValue")
+                                                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                                                 .returns(String.class)
+                                                 .build();
 
 
         return TypeSpec.interfaceBuilder(TERMINAL_COMPARABLE_INTERFACE_TYPENAME)
