@@ -9,9 +9,11 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import javax.lang.model.element.Modifier;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * File created on 01.04.2024
@@ -26,6 +28,8 @@ class TerminalClassGeneratorTest {
 
         assertEquals(JavaSourceGenerator.TERMINAL_CLASS_TYPENAME.simpleName(), terminalClassTypeSpec.name);
         assertEquals(3, terminalClassTypeSpec.methodSpecs.size());
+        assertTrue(terminalClassTypeSpec.hasModifier(Modifier.PRIVATE));
+        assertTrue(terminalClassTypeSpec.hasModifier(Modifier.STATIC));
 
         for (String methodName : Set.of("symbolMatches", "getType", "getValue")) {
             assertTrue(terminalClassTypeSpec.methodSpecs.stream().map(ms -> ms.name).anyMatch(methodName::equals));

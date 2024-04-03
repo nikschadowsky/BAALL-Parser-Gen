@@ -71,7 +71,7 @@ public class TerminalClassGenerator implements JavaSourceGenerator {
 
 
         return TypeSpec.classBuilder(TERMINAL_CLASS_TYPENAME)
-                       .addModifiers(Modifier.PUBLIC)
+                       .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
                        .addSuperinterface(TERMINAL_COMPARABLE_INTERFACE_TYPENAME)
                        .addField(valueFieldSpec)
                        .addField(typeFieldSpec)
