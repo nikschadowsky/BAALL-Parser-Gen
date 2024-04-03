@@ -3,13 +3,18 @@ package de.nikschadowsky.baall.parsergen.generator;
 import com.squareup.javapoet.*;
 import de.nikschadowsky.baall.parsergen.grammar.Grammar;
 import de.nikschadowsky.baall.parsergen.grammar.GrammarNonterminal;
+import de.nikschadowsky.baall.parsergen.grammar.GrammarTerminal;
+import de.nikschadowsky.baall.parsergen.grammar.analysis.GrammarProductionTreeAssembler;
 import de.nikschadowsky.baall.parsergen.grammar.analysis.GrammarProductionTreeNode;
 import org.apache.commons.text.CaseUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.lang.model.element.Modifier;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
+import java.util.stream.Collectors;
 
 /**
  * File created on 10.03.2024
@@ -36,53 +41,65 @@ public class ParserClassGenerator implements JavaSourceGenerator {
         TypeSpec.Builder parserClassTypeSpec =
                 TypeSpec.classBuilder(PARSER_CLASS_TYPENAME).addModifiers(Modifier.PUBLIC);
 
+        parserClassTypeSpec.addField(ParameterizedTypeName.get(
+                ClassName.get(Queue.class),
+                TERMINAL_COMPARABLE_INTERFACE_TYPENAME
+        ), "queue", Modifier.PRIVATE);
 
-        return null;
+        parserClassTypeSpec.addField(ParameterizedTypeName.get(
+                ClassName.get(Map.class),
+                ClassName.get(String.class),
+                JavaSourceGenerator.TERMINAL_CLASS_TYPENAME
+        ), "TERMINAL_MAP", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
+
+        parserClassTypeSpec.addMethod(generateMapEntryMethod(grammar.getAllTerminals()));
+
+        parserClassTypeSpec.addMethod(generateConstructor());
+
+        parserClassTypeSpec.addMethods(grammar.getAllNonterminals()
+                                              .stream()
+                                              .map(this::generateParserMethodForNonterminal)
+                                              .collect(
+                                                      Collectors.toList()));
+
+        parserClassTypeSpec.addType(TerminalClassGenerator.getInstance().generateTypeSpec(grammar));
+
+        return parserClassTypeSpec.build();
     }
 
-    private MethodSpec generateInitMethod() {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("init").addModifiers(Modifier.PRIVATE);
 
+    protected MethodSpec generateConstructor() {
+        ParameterSpec terminalQueueParameterSpec = ParameterSpec.builder(ParameterizedTypeName.get(
+                ClassName.get(Queue.class),
+                TERMINAL_COMPARABLE_INTERFACE_TYPENAME
+        ), "tokens").build();
 
-
-        return builder.build();
+        return MethodSpec.constructorBuilder()
+                         .addModifiers(Modifier.PUBLIC)
+                         .addParameter(terminalQueueParameterSpec)
+                         .addStatement("this.queue = tokens")
+                         .build();
     }
 
-    private MethodSpec generateConstructor() {
-        ParameterSpec terminalQueueParameter =
+    protected MethodSpec generateParserMethodForNonterminal(GrammarNonterminal nonterminal) {
+        ParameterSpec terminalQueueParameterSpec =
                 ParameterSpec.builder(ParameterizedTypeName.get(
                         ClassName.get(Queue.class),
                         TERMINAL_COMPARABLE_INTERFACE_TYPENAME
-                ), "tokens").build();
+                ), "queue").build();
 
-        MethodSpec.Builder builder = MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC);
+        CodeBlock conditionsCodeBlock =
+                generateCodeBlockForConditionTree(GrammarProductionTreeAssembler.generateConditionTree(nonterminal));
 
-        builder.addParameter(terminalQueueParameter);
-        builder.addStatement("this.queue = queue");
-
-        builder.addStatement("init()");
-
-        return builder.build();
+        return MethodSpec.methodBuilder(getParseMethodName(nonterminal))
+                         .addModifiers(Modifier.PRIVATE)
+                         .returns(TypeName.BOOLEAN)
+                         .addParameter(terminalQueueParameterSpec)
+                         .addCode(conditionsCodeBlock)
+                         .build();
     }
 
-    private MethodSpec generateParserMethodForNonterminal(GrammarNonterminal nonterminal) {
-        MethodSpec.Builder methodSpec =
-                MethodSpec.methodBuilder(getParseMethodName(nonterminal)).returns(TypeName.BOOLEAN);
-
-        return methodSpec.build();
-    }
-
-    @NotNull
-    private static String getParseMethodName(GrammarNonterminal nonterminal) {
-        return PARSING_METHOD_NAME_PREFIX + CaseUtils.toCamelCase(
-                nonterminal.getIdentifier(),
-                true,
-                '_'
-        );
-    }
-
-
-    public CodeBlock generateConditionCodeBlock(GrammarProductionTreeNode.Root root) {
+    private CodeBlock generateCodeBlockForConditionTree(GrammarProductionTreeNode.Root root) {
         CodeBlock.Builder builder = CodeBlock.builder();
         List<GrammarProductionTreeNode.SymbolNode> children = root.getChildren();
 
@@ -90,10 +107,10 @@ public class ParserClassGenerator implements JavaSourceGenerator {
             builder.add(generateCodeForCondition(children.get(i), i == 0));
         }
         if (root.hasEpsilonRule()) {
-            builder.addStatement("return true");
-        }else {
-            builder.addStatement("// TODO add behaviour when this symbol couldn't be parsed");
-            builder.addStatement("throw new RuntimeException(\"Expected '?' but got '?'!\")");
+            builder.add("return true;\n");
+        } else {
+            builder.add("// TODO add behaviour when this symbol couldn't be parsed\n");
+            builder.add("throw new RuntimeException(\"Expected '?' but got '?'!\");\n");
         }
         return builder.build();
     }
@@ -103,7 +120,8 @@ public class ParserClassGenerator implements JavaSourceGenerator {
 
         String condition = (
                 conditionNode.getValue().isTerminal()
-                        ? "TERMINAL_MAP.get(\"%s\").symbolMatches(queue.poll())".formatted(conditionNode.getValue().getFormatted())
+                        ? "TERMINAL_MAP.get(\"%s\").symbolMatches(queue.poll())"
+                        .formatted(conditionNode.getValue().getFormatted())
                         : "%s(queue)".formatted(getParseMethodName((GrammarNonterminal) conditionNode.getValue()))
         );
 
@@ -119,11 +137,56 @@ public class ParserClassGenerator implements JavaSourceGenerator {
         }
 
         if (children.isEmpty() || conditionNode.isFinal()) {
-            builder.addStatement("return true");
+            builder.add("return true;\n");
         }
         builder.endControlFlow();
 
         return builder.build();
+    }
+
+    protected MethodSpec generateMapEntryMethod(LinkedHashSet<GrammarTerminal> terminals) {
+        TypeName returnTypeName = ParameterizedTypeName.get(
+                ClassName.get(Map.class),
+                ClassName.get(String.class),
+                TERMINAL_CLASS_TYPENAME
+        );
+
+        return MethodSpec.methodBuilder("generateMapEntries")
+                         .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
+                         .returns(returnTypeName)
+                         .addCode(generateCodeBlockForMapEntries(terminals)).build();
+    }
+
+    private CodeBlock generateCodeBlockForMapEntries(LinkedHashSet<GrammarTerminal> terminals) {
+        if (terminals.isEmpty()) {
+            return CodeBlock.builder().addStatement("return $T.ofEntries()", Map.class).build();
+        }
+
+        StringBuilder mapDefinitionCodeBuilder = new StringBuilder("return $T.ofEntries(\n");
+
+        List<String> entries = terminals.stream()
+                                        .map(terminal -> "Map.entry(\"%s\", new %s(%s.%s, \"%s\"))".formatted(
+                                                terminal.value(),
+                                                JavaSourceGenerator.TERMINAL_CLASS_TYPENAME.simpleName(),
+                                                JavaSourceGenerator.TERMINAL_TYPE_ENUM_TYPENAME.simpleName(),
+                                                terminal.type().name(),
+                                                terminal.value()
+                                        )).toList();
+
+        String entryDefinitions = String.join(",\n", entries);
+
+        mapDefinitionCodeBuilder.append(entryDefinitions);
+        mapDefinitionCodeBuilder.append("\n)");
+
+        return CodeBlock.builder().addStatement(mapDefinitionCodeBuilder.toString(), Map.class).build();
+    }
+
+    private static String getParseMethodName(GrammarNonterminal nonterminal) {
+        return PARSING_METHOD_NAME_PREFIX + CaseUtils.toCamelCase(
+                nonterminal.getIdentifier(),
+                true,
+                '_'
+        );
     }
 
 
