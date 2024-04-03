@@ -1,34 +1,64 @@
 package de.nikschadowsky.baall.parsergen.generator;
 
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeSpec;
 import de.nikschadowsky.baall.parsergen._utility.GrammarUtility;
-import de.nikschadowsky.baall.parsergen.grammar.analysis.GrammarTerminalUniqueList;
+import de.nikschadowsky.baall.parsergen.grammar.Grammar;
 import de.nikschadowsky.baall.parsergen.grammar.GrammarNonterminal;
 import de.nikschadowsky.baall.parsergen.grammar.GrammarProduction;
 import de.nikschadowsky.baall.parsergen.grammar.GrammarTerminal;
+import de.nikschadowsky.baall.parsergen.grammar.generation.GrammarReader;
+import de.nikschadowsky.baall.parsergen.util.FileUtility;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 class ParserClassGeneratorTest {
 
     @Test
     void generateTypeSpec() {
-        fail();
+
+        Grammar g = GrammarReader.getInstance()
+                                 .generateGrammar(FileUtility.getPathFromClasspath("GrammarReaderTestFile.grammar"));
+
+        TypeSpec parserClassTypeSpec = ParserClassGenerator.getInstance().generateTypeSpec(g);
+
+        System.out.println(parserClassTypeSpec);
+
+        assertEquals(2, parserClassTypeSpec.fieldSpecs.size());
+
+        assertEquals(2 + g.getAllNonterminals().size(), parserClassTypeSpec.methodSpecs.size());
+        assertEquals(1, parserClassTypeSpec.methodSpecs.stream().filter(MethodSpec::isConstructor).count());
+        assertEquals(1, parserClassTypeSpec.methodSpecs.stream().filter(ms -> ms.hasModifier(Modifier.STATIC)).count());
+
+        assertEquals(1, parserClassTypeSpec.typeSpecs.size());
+    }
+
+    @Test
+    void generateConstructor() {
+        // the constructor is called 'Constructor' here because the generator was not called by a type spec
+        String expected = """
+                public Constructor(java.util.Queue<TerminalComparable> tokens) {
+                  this.queue = tokens;
+                }
+                """;
+
+        assertEquals(expected, ParserClassGenerator.getInstance().generateConstructor().toString());
     }
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    void generateConditionCodeBlock(boolean hasEpsilon) {
+    void generateParserMethodForNonterminal(boolean hasEpsilon) {
         String expected = """
                 private boolean parseNode(java.util.Queue<TerminalComparable> queue) {
                   if (TERMINAL_MAP.get("a").symbolMatches(queue.poll())) {
@@ -87,7 +117,7 @@ class ParserClassGeneratorTest {
 
     @ParameterizedTest
     @MethodSource(value = "mapEntryDataProvider")
-    void generateMapEntryMethod(GrammarTerminalUniqueList terminals, String expectedEntryStrings) {
+    void generateMapEntryMethod(LinkedHashSet<GrammarTerminal> terminals, String expectedEntryStrings) {
         String expected = """
                 private static java.util.Map<java.lang.String, TerminalSymbol> generateMapEntries() {
                   return java.util.Map.ofEntries(%s);
@@ -101,12 +131,12 @@ class ParserClassGeneratorTest {
     }
 
     static Stream<Arguments> mapEntryDataProvider() {
-        GrammarTerminalUniqueList nonEmpty = new GrammarTerminalUniqueList();
+        LinkedHashSet<GrammarTerminal> nonEmpty = new LinkedHashSet<>();
         nonEmpty.add(new GrammarTerminal(GrammarTerminal.TerminalType.ANY, "any"));
         nonEmpty.add(new GrammarTerminal(GrammarTerminal.TerminalType.NUMBER, "number"));
         nonEmpty.add(new GrammarTerminal(GrammarTerminal.TerminalType.KEYWORD, "keyword"));
 
-        return Stream.of(Arguments.of(new GrammarTerminalUniqueList(), ""), Arguments.of(
+        return Stream.of(Arguments.of(new LinkedHashSet<>(), ""), Arguments.of(
                 nonEmpty,
                 """
                                                           
@@ -117,15 +147,5 @@ class ParserClassGeneratorTest {
         ));
     }
 
-    @Test
-    void generateConstructor() {
-        // the constructor is called 'Constructor' here because the generator was not called by a type spec
-        String expected = """
-                public Constructor(java.util.Queue<TerminalComparable> tokens) {
-                  this.queue = tokens;
-                }
-                """;
 
-        assertEquals(expected, ParserClassGenerator.getInstance().generateConstructor().toString());
-    }
 }
