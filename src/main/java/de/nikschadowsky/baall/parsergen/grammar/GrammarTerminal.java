@@ -29,13 +29,9 @@ public record GrammarTerminal(TerminalType type, String value) implements Gramma
                 return value.equals(terminal.value());
             }
 
-            if (!type().hasExactValueMatching() && type().equals(terminal.type())) {
-                return true;
+            if (type().equals(terminal.type())) {
+                return !type.hasExactValueMatching() || value.equals(terminal.value);
             }
-
-            // else the type must be equal too
-            return type().equals(terminal.type()) && value().equals(terminal.value());
-
         }
 
         return false;
