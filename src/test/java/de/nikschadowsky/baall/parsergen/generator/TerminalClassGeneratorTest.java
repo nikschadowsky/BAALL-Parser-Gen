@@ -66,7 +66,7 @@ class TerminalClassGeneratorTest {
         return """
                 if (!TerminalType.ANY.equals(type)) {
                   return value.equals(symbol.getValue());
-                } if (type.equals(symbol.getType()) {
+                } if (type.equals(symbol.getType())) {
                   return !type.hasExactValueMatching() || value.equals(symbol.getType());
                 }
                 return false;""";

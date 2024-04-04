@@ -47,7 +47,7 @@ public class TerminalClassGenerator implements JavaSourceGenerator {
                                            .addStatement(
                                                    "return value.equals(symbol.getValue())")
                                            .nextControlFlow(
-                                                   "if (type.equals(symbol.getType())")
+                                                   "if (type.equals(symbol.getType()))")
                                            .addStatement(
                                                    "return !type.hasExactValueMatching() || value.equals(symbol.getType())")
                                            .endControlFlow()
