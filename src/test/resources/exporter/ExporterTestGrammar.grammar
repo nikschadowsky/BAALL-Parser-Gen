@@ -1,0 +1,3 @@
+START -> "a" A @Start
+A -> "b" B "b" | _EPSILON
+B -> "a" A "a"
