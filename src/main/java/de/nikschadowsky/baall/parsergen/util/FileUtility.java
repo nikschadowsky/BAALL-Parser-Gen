@@ -4,14 +4,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FileUtility {
 
-    public static String getFileContent(Path path){
+    public static String getFileContent(Path path) {
         try {
             byte[] bytes = Files.readAllBytes(path);
             return new String(bytes);
@@ -20,10 +19,11 @@ public class FileUtility {
         }
     }
 
-    public static String getFileContentFromClasspath(String path){
+    public static String getFileContentFromClasspath(String path) {
         return getFileContent(getPathFromClasspath(path));
     }
-    public static String getFileContentFromFileSystem(String path){
+
+    public static String getFileContentFromFileSystem(String path) {
         return getFileContent(getPathFromFileSystem(path));
     }
 
@@ -49,12 +49,34 @@ public class FileUtility {
         return filename.substring(filename.lastIndexOf(".") + 1);
     }
 
-    public static boolean createFile(Path filePath){
+    public static boolean createFile(Path filePath) {
         try {
             Files.createFile(filePath);
             return true;
         } catch (IOException e) {
             return false;
         }
+    }
+
+    public static Path getWorkingDirectory() {
+        return Path.of(System.getProperty("user.dir"));
+    }
+
+    public static void writeToFile(Path path, String data, boolean overrideFile) throws IOException {
+        List<StandardOpenOption> options = new ArrayList<>();
+        options.add(StandardOpenOption.WRITE);
+        options.add(StandardOpenOption.CREATE);
+
+        if (Files.exists(path)) {
+            if (!overrideFile) {
+                return;
+            }
+            // delete existing contents
+            options.add(StandardOpenOption.TRUNCATE_EXISTING);
+        } else {
+            createFile(path);
+        }
+
+        Files.writeString(path, data, options.toArray(new OpenOption[0]));
     }
 }
