@@ -58,10 +58,6 @@ public class FileUtility {
         }
     }
 
-    public static Path getWorkingDirectory() {
-        return Path.of(System.getProperty("user.dir"));
-    }
-
     public static void writeToFile(Path path, String data, boolean overrideFile) throws IOException {
         List<StandardOpenOption> options = new ArrayList<>();
         options.add(StandardOpenOption.WRITE);

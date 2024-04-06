@@ -74,7 +74,7 @@ class ExporterTest {
 
         assert files != null;
         for (File file : files) {
-            compilationUnits.add(new TestJavaFileObject(file.toPath(), JavaFileObject.Kind.SOURCE));
+            compilationUnits.add(new TestJavaFileObject(file.toPath()));
         }
         return compilationUnits;
     }
@@ -84,8 +84,8 @@ class ExporterTest {
 
         private final Path path;
 
-        protected TestJavaFileObject(Path path, Kind kind) {
-            super(path.toUri(), kind);
+        protected TestJavaFileObject(Path path) {
+            super(path.toUri(), Kind.SOURCE);
             this.path = path;
         }
 

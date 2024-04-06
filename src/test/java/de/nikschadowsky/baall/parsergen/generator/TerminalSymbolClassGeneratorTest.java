@@ -22,6 +22,14 @@ class TerminalSymbolClassGeneratorTest {
 
     private final Grammar mock = Mockito.mock(Grammar.class);
 
+    private static final String expectedSymbolMatchesCode = """
+            if (!TerminalType.ANY.equals(type)) {
+              return value.equals(symbol.getValue());
+            } if (type.equals(symbol.getType())) {
+              return !type.hasExactValueMatching() || value.equals(symbol.getType());
+            }
+            return false;""";
+
     @Test
     void generateTypeSpec() {
         TypeSpec terminalClassTypeSpec = TerminalSymbolClassGenerator.getInstance().generateTypeSpec(mock);
@@ -39,7 +47,7 @@ class TerminalSymbolClassGeneratorTest {
         MethodSpec symbolMatchesMethodSpec = getMethodSpecFromName(terminalClassTypeSpec, "symbolMatches");
         assertEquals(TypeName.BOOLEAN, symbolMatchesMethodSpec.returnType);
         assertEquals(1, symbolMatchesMethodSpec.parameters.size());
-        assertEquals(getExpectedSymbolMatchesCode(), symbolMatchesMethodSpec.code.toString().strip());
+        assertEquals(expectedSymbolMatchesCode, symbolMatchesMethodSpec.code.toString().strip());
 
         // getType
         MethodSpec getTypeMethodSpec = getMethodSpecFromName(terminalClassTypeSpec, "getType");
@@ -62,13 +70,4 @@ class TerminalSymbolClassGeneratorTest {
                                                 .orElseThrow();
     }
 
-    private String getExpectedSymbolMatchesCode() {
-        return """
-                if (!TerminalType.ANY.equals(type)) {
-                  return value.equals(symbol.getValue());
-                } if (type.equals(symbol.getType())) {
-                  return !type.hasExactValueMatching() || value.equals(symbol.getType());
-                }
-                return false;""";
-    }
 }

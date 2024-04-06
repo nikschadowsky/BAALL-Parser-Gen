@@ -12,13 +12,6 @@ public interface GrammarSymbol {
     boolean isTerminal();
 
     /**
-     * Compares two grammar symbols in a shallow way. Check individual implementations!
-     *
-     * @return if symbols are shallowly equal
-     */
-    boolean symbolEquals(GrammarSymbol s);
-
-    /**
      * Compares two grammar symbols in a deep way. Check individual implementations!
      *
      * @return if symbols are deeply equal

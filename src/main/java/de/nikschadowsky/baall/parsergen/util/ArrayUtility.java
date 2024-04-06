@@ -10,20 +10,6 @@ import java.util.stream.IntStream;
  */
 public class ArrayUtility {
 
-    /**
-     * Copy the {@code array} argument and trim it, if its length is larger than the second argument {@code length}
-     *
-     * @param array  array to copy and trim
-     * @param length the max length
-     * @param <T>    type of array
-     * @return copy of the array with maximum length
-     */
-    public static <T> T[] trimArrayToMaxLength(T[] array, int length) {
-        if (array.length < length) return Arrays.copyOf(array, array.length);
-
-        return Arrays.copyOf(array, length);
-    }
-
     public static <T> T[] subarray(@NotNull T[] array, int lowerIndex, int upperIndex) {
         if (upperIndex > array.length) {
             throw new IllegalArgumentException("Upper index may not lie outside array!");

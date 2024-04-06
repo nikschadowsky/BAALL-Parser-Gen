@@ -14,10 +14,6 @@ public class GrammarProduction {
         this.sententialForm = symbols;
     }
 
-    public int getProductionRuleIdentifier() {
-        return productionRuleIdentifier;
-    }
-
     public GrammarSymbol[] getSententialForm() {
         return sententialForm;
     }

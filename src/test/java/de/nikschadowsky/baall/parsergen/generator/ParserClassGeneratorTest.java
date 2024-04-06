@@ -139,8 +139,7 @@ class ParserClassGeneratorTest {
         return Stream.of(Arguments.of(new LinkedHashSet<>(), ""), Arguments.of(
                 nonEmpty,
                 """
-                                                          
-                              Map.entry("any", new TerminalSymbol(TerminalType.ANY, "any")),
+                        \n      Map.entry("any", new TerminalSymbol(TerminalType.ANY, "any")),
                               Map.entry("number", new TerminalSymbol(TerminalType.NUMBER, "number")),
                               Map.entry("keyword", new TerminalSymbol(TerminalType.KEYWORD, "keyword"))
                         \s\s\s\s\s\s"""

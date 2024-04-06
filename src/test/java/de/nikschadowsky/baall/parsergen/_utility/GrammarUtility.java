@@ -1,7 +1,6 @@
 package de.nikschadowsky.baall.parsergen._utility;
 
 import de.nikschadowsky.baall.parsergen.grammar.*;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,14 +30,6 @@ public class GrammarUtility {
 
     public static GrammarTerminal getTerminalWithTypeAny(String value) {
         return new GrammarTerminal(GrammarTerminal.TerminalType.ANY, value);
-    }
-
-    public static GrammarProduction getProductionRule(@NotNull GrammarNonterminal lss, GrammarSymbol... prod) {
-        return lss.getProductionRules()
-                  .stream()
-                  .filter(gp -> gp.equals(new GrammarProduction(-1, prod)))
-                  .findAny()
-                  .orElse(null);
     }
 
     public static GrammarProduction createProductionRule(GrammarSymbol... prod) {

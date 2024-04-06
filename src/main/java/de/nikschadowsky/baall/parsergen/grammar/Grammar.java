@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.LinkedHashSet;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 
 public class Grammar {
@@ -37,14 +36,6 @@ public class Grammar {
 
     public @Unmodifiable LinkedHashSet<GrammarTerminal> getAllTerminals() {
         return ImmutableLinkedHashSet.createFrom(terminals);
-    }
-
-    public @NotNull GrammarProduction getRuleQualifiedById(int identifier) {
-        return grammarProductions.stream()
-                                 .filter(rule -> rule.getProductionRuleIdentifier() == identifier)
-                                 .findAny()
-                                 .orElseThrow(() -> new NoSuchElementException(
-                                         "No production rule with id %s found in this grammar!".formatted(identifier)));
     }
 
     @Override

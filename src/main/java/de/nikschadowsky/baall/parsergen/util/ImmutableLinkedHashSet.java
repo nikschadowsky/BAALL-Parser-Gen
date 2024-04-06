@@ -17,6 +17,7 @@ public class ImmutableLinkedHashSet<T> extends LinkedHashSet<T> {
 
     private ImmutableLinkedHashSet(@NotNull Collection<? extends T> c) {
         // do not replace this. implementation calls overridden add().
+        //noinspection UseBulkOperation
         c.forEach(super::add);
     }
 

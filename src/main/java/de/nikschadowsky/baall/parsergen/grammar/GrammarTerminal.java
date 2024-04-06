@@ -20,7 +20,6 @@ public record GrammarTerminal(TerminalType type, String value) implements Gramma
         return true;
     }
 
-    @Override
     public boolean symbolEquals(GrammarSymbol s) {
         if (s instanceof GrammarTerminal terminal) {
 
