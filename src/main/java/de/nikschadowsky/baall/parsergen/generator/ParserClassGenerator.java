@@ -46,11 +46,15 @@ public class ParserClassGenerator implements JavaSourceGenerator {
                 TERMINAL_COMPARABLE_INTERFACE_TYPENAME
         ), "queue", Modifier.PRIVATE);
 
-        parserClassTypeSpec.addField(ParameterizedTypeName.get(
-                ClassName.get(Map.class),
-                ClassName.get(String.class),
-                JavaSourceGenerator.TERMINAL_CLASS_TYPENAME
-        ), "TERMINAL_MAP", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
+        FieldSpec terminalMap = FieldSpec.builder(ParameterizedTypeName.get(
+                                                 ClassName.get(Map.class),
+                                                 ClassName.get(String.class),
+                                                 JavaSourceGenerator.TERMINAL_CLASS_TYPENAME
+                                         ), "TERMINAL_MAP", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
+                                         .initializer("generateMapEntries()")
+                                         .build();
+
+        parserClassTypeSpec.addField(terminalMap);
 
         parserClassTypeSpec.addMethod(generateMapEntryMethod(grammar.getAllTerminals()));
 
@@ -62,7 +66,7 @@ public class ParserClassGenerator implements JavaSourceGenerator {
                                               .collect(
                                                       Collectors.toList()));
 
-        parserClassTypeSpec.addType(TerminalClassGenerator.getInstance().generateTypeSpec(grammar));
+        parserClassTypeSpec.addType(TerminalSymbolClassGenerator.getInstance().generateTypeSpec(grammar));
 
         return parserClassTypeSpec.build();
     }
