@@ -3,6 +3,8 @@ package de.nikschadowsky.baall.parsergen.grammar.generation;
 import de.nikschadowsky.baall.parsergen.grammar.*;
 import de.nikschadowsky.baall.parsergen.util.ArrayUtility;
 import de.nikschadowsky.baall.parsergen.util.FileUtility;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -36,6 +38,8 @@ import java.util.stream.Collectors;
 public class GrammarReader {
 
     private static GrammarReader instance;
+
+    private static final Logger logger = LogManager.getLogger(GrammarReader.class);
 
     private GrammarReader() {
     }
@@ -75,7 +79,7 @@ public class GrammarReader {
 
     private @NotNull GrammarFileContent createFileContentContainer(@NotNull Path path) {
         if (!FileUtility.getFileExtension(path).equals("grammar")) {
-            System.out.println("Grammar files should use the '.grammar' extension!");
+            logger.warn("Grammar files should use the '.grammar' extension!");
         }
         String preprocessed = preprocess(FileUtility.getFileContent(path));
         String[] lines = preprocessed.split("\\v+");
@@ -103,7 +107,6 @@ public class GrammarReader {
             int index = i;
             Arrays.setAll(tokens[index], j -> tokens[index][j].trim());
         }
-
         return tokens;
     }
 
@@ -123,7 +126,6 @@ public class GrammarReader {
                 }
             }
         }
-
     }
 
 
@@ -131,7 +133,6 @@ public class GrammarReader {
         LinkedHashSet<GrammarNonterminal> nonterminalSet = new LinkedHashSet<>();
 
         for (int l = 0; l < content.lineCount(); l++) {
-
             String[] tokens = content.tokens()[l];
 
             String identifier = tokens[0].toUpperCase();
