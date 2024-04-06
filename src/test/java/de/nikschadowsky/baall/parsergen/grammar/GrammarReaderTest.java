@@ -8,15 +8,12 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static de.nikschadowsky.baall.parsergen._utility.Assertions.assertCollectionShallowEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GrammarReaderTest {
-
-    private final Logger logger = Logger.getAnonymousLogger();
 
     @Test
     void testCreateGrammar() {
@@ -29,7 +26,9 @@ class GrammarReaderTest {
         assertTrue(g.getAllNonterminals().stream().allMatch(elem -> testNonterminals.contains(elem.getIdentifier())));
 
         Set<Map.Entry<String, GrammarTerminal.TerminalType>> testTerminals = Set.of(
-                Map.entry("T", GrammarTerminal.TerminalType.ANY), Map.entry("|", GrammarTerminal.TerminalType.ANY)
+                Map.entry("T", GrammarTerminal.TerminalType.ANY),
+                Map.entry("|", GrammarTerminal.TerminalType.ANY),
+                Map.entry("", GrammarTerminal.TerminalType.NUMBER)
         );
 
         assertCollectionShallowEquals(
@@ -59,7 +58,7 @@ class GrammarReaderTest {
         String productionA = "A B \"T\" \"|\"";
         String productionB = "ε";
 
-        logger.info(derivationRepresentation);
+        System.out.println(derivationRepresentation);
 
         assertTrue(derivationRepresentation.contains(productionA) && derivationRepresentation.contains(productionB));
     }
@@ -95,7 +94,7 @@ class GrammarReaderTest {
 
         String expected = "Missing symbols";
 
-        logger.warning(e.getMessage());
+        System.err.println(e.getMessage());
 
         assertTrue(e.getMessage().contains(expected));
     }
@@ -111,7 +110,7 @@ class GrammarReaderTest {
 
         String expected = "Meta symbols cannot be used as identifiers for nonterminals!";
 
-        logger.warning(e.getMessage());
+        System.err.println(e.getMessage());
 
         assertTrue(e.getMessage().contains(expected));
     }

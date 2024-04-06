@@ -46,7 +46,7 @@ class ParserClassGeneratorTest {
 
     @Test
     void generateConstructor() {
-        // the constructor is called 'Constructor' here because the generator was not called by a type spec
+        // the constructor is called 'Constructor' here because the className has not been set yet
         String expected = """
                 public Constructor(java.util.Queue<TerminalComparable> tokens) {
                   this.queue = tokens;

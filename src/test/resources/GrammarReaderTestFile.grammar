@@ -1,7 +1,7 @@
 START -> A B "T" "\|" | _EPSILON @Start @StartAnnotation
 A -> B | "T" # comment
 # and here too
-b -> b END
+b -> b END | _NUMBER
 
 
 END -> _EPSILON @EndAnnotation @AdditionalAnnotation
