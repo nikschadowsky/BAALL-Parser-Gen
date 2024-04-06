@@ -9,19 +9,19 @@ import javax.lang.model.element.Modifier;
 /**
  * File created on 27.03.2024
  */
-public class TerminalClassGenerator implements JavaSourceGenerator {
+public class TerminalSymbolClassGenerator implements JavaSourceGenerator {
 
-    private static TerminalClassGenerator INSTANCE;
+    private static TerminalSymbolClassGenerator INSTANCE;
 
-    public static TerminalClassGenerator getInstance() {
+    public static TerminalSymbolClassGenerator getInstance() {
         if (INSTANCE == null) {
-            INSTANCE = new TerminalClassGenerator();
+            INSTANCE = new TerminalSymbolClassGenerator();
         }
 
         return INSTANCE;
     }
 
-    private TerminalClassGenerator() {
+    private TerminalSymbolClassGenerator() {
     }
 
     @Override
@@ -30,6 +30,14 @@ public class TerminalClassGenerator implements JavaSourceGenerator {
 
         FieldSpec typeFieldSpec =
                 FieldSpec.builder(TERMINAL_TYPE_ENUM_TYPENAME, "type", Modifier.PRIVATE, Modifier.FINAL).build();
+
+        MethodSpec constructor = MethodSpec.constructorBuilder()
+                                           .addModifiers(Modifier.PUBLIC)
+                                           .addParameter(
+                                                   JavaSourceGenerator.TERMINAL_TYPE_ENUM_TYPENAME, "type")
+                                           .addParameter(ClassName.get(String.class), "value")
+                                           .addStatement("this.type = type").addStatement("this.value = value")
+                                           .build();
 
         MethodSpec symbolMatchesMethodSpec =
                 MethodSpec.methodBuilder("symbolMatches")
@@ -75,6 +83,7 @@ public class TerminalClassGenerator implements JavaSourceGenerator {
                        .addSuperinterface(TERMINAL_COMPARABLE_INTERFACE_TYPENAME)
                        .addField(valueFieldSpec)
                        .addField(typeFieldSpec)
+                       .addMethod(constructor)
                        .addMethod(symbolMatchesMethodSpec)
                        .addMethod(getTypeMethodSpec)
                        .addMethod(getValueMethodSpec)

@@ -18,20 +18,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * File created on 01.04.2024
  */
-class TerminalClassGeneratorTest {
+class TerminalSymbolClassGeneratorTest {
 
     private final Grammar mock = Mockito.mock(Grammar.class);
 
     @Test
     void generateTypeSpec() {
-        TypeSpec terminalClassTypeSpec = TerminalClassGenerator.getInstance().generateTypeSpec(mock);
+        TypeSpec terminalClassTypeSpec = TerminalSymbolClassGenerator.getInstance().generateTypeSpec(mock);
 
         assertEquals(JavaSourceGenerator.TERMINAL_CLASS_TYPENAME.simpleName(), terminalClassTypeSpec.name);
-        assertEquals(3, terminalClassTypeSpec.methodSpecs.size());
+        assertEquals(4, terminalClassTypeSpec.methodSpecs.size());
         assertTrue(terminalClassTypeSpec.hasModifier(Modifier.PRIVATE));
         assertTrue(terminalClassTypeSpec.hasModifier(Modifier.STATIC));
 
-        for (String methodName : Set.of("symbolMatches", "getType", "getValue")) {
+        for (String methodName : Set.of("<init>", "symbolMatches", "getType", "getValue")) {
             assertTrue(terminalClassTypeSpec.methodSpecs.stream().map(ms -> ms.name).anyMatch(methodName::equals));
         }
 
