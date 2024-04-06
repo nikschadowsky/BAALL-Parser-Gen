@@ -3,10 +3,8 @@ package de.nikschadowsky.baall.parsergen;
 import de.nikschadowsky.baall.parsergen.grammar.Grammar;
 import de.nikschadowsky.baall.parsergen.grammar.generation.GrammarReader;
 import de.nikschadowsky.baall.parsergen.grammar.optimization.GrammarMinimizer;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.config.Configurator;
 
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -25,7 +23,7 @@ public class BaallParserGenerator {
                     This console tool compiles grammar files into target code. Below are the available arguments and options:
 
                     Usage:
-                    java GrammarCompiler <grammarLocation> [-d <targetDestination>] [-p <packageName>] [-v] [-m] [-o | -k]
+                    java GrammarCompiler <grammarLocation> [-d <targetDestination>] [-p <packageName>] [-m] [-o | -k]
 
                     Arguments:
                     - <grammarLocation>: Location of the grammar file.
@@ -33,13 +31,12 @@ public class BaallParserGenerator {
                     Options:
                     - -d <targetDestination>: Specify the destination directory for the compiled code. Default is the current directory.
                     - -p <packageName>: Specify the package name for the compiled code. Default is "x.y.z".
-                    - -v: Verbose mode. Display detailed output during compilation.
                     - -m: Minimize the grammar. (Optional)
                     - -o: Override existing files. (Default)
                     - -k: Keep existing classes.
 
                     Example:
-                    java GrammarCompiler grammar.txt -d outputDir -p com.example.grammar -v -m -k
+                    java GrammarCompiler grammar.txt -d outputDir -p com.example.grammar -m -k
 
                     Note:
                     - If no options are provided, the tool will compile the grammar file with default settings.
@@ -56,13 +53,13 @@ public class BaallParserGenerator {
     }
 
     private BaallParserGenerator(String[] args) {
+        logger.info("Starting BaallParserGenerator...");
         final List<String> arguments = Arrays.asList(args);
 
         // configuration
         String grammarLocation;
         String targetDestination = ".";
         String packageName = "x.y.z";
-        boolean verbose = false;
         boolean minimizeGrammar = false;
         boolean overrideExistingFiles = true;
 
@@ -80,14 +77,11 @@ public class BaallParserGenerator {
             switch (arguments.get(i)) {
                 case "-d" -> targetDestination = arguments.get(++i);
                 case "-p" -> packageName = arguments.get(++i);
-                case "-v" -> verbose = true;
                 case "-m" -> minimizeGrammar = true;
                 case "-o" -> overrideExistingFiles = true;
                 case "-k" -> overrideExistingFiles = false;
+                default -> throw new IllegalArgumentException("Unknown option: " + arguments.get(i));
             }
-        }
-        if (verbose) {
-            Configurator.setRootLevel(Level.INFO);
         }
 
         try {
@@ -102,7 +96,6 @@ public class BaallParserGenerator {
             Exporter.getInstance()
                     .exportClasses(grammar, Path.of(targetDestination), packageName, overrideExistingFiles);
 
-            Configurator.setRootLevel(Level.INFO);
             logger.info("Classes successfully generated!");
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -110,7 +103,6 @@ public class BaallParserGenerator {
     }
 
     private void logHelpText() {
-        Configurator.setRootLevel(Level.INFO);
         logger.info("\n" + helpText);
         System.exit(0);
     }
