@@ -147,4 +147,9 @@ class ParserClassGeneratorTest {
     }
 
 
+    @ParameterizedTest
+    @ValueSource(strings = {"test_pascal_case", "test_Pascal_Case"})
+    void toPascalCase(String actual) {
+        assertEquals("TestPascalCase", ParserClassGenerator.toPascalCase(actual));
+    }
 }

@@ -6,7 +6,6 @@ import de.nikschadowsky.baall.parsergen.grammar.GrammarNonterminal;
 import de.nikschadowsky.baall.parsergen.grammar.GrammarTerminal;
 import de.nikschadowsky.baall.parsergen.grammar.analysis.GrammarProductionTreeAssembler;
 import de.nikschadowsky.baall.parsergen.grammar.analysis.GrammarProductionTreeNode;
-import org.apache.commons.text.CaseUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.lang.model.element.Modifier;
@@ -185,13 +184,20 @@ public class ParserClassGenerator implements JavaSourceGenerator {
         return CodeBlock.builder().addStatement(mapDefinitionCodeBuilder.toString(), Map.class).build();
     }
 
-    private static String getParseMethodName(GrammarNonterminal nonterminal) {
-        return PARSING_METHOD_NAME_PREFIX + CaseUtils.toCamelCase(
-                nonterminal.getIdentifier(),
-                true,
-                '_'
-        );
+    public static String getParseMethodName(GrammarNonterminal nonterminal) {
+        return PARSING_METHOD_NAME_PREFIX + toPascalCase(nonterminal.getIdentifier());
     }
 
+    public static String toPascalCase(String string) {
+        String[] parts = string.split("_+");
+
+        StringBuilder builder = new StringBuilder();
+
+        for (String part : parts) {
+            builder.append(part.substring(0, 1).toUpperCase()).append(part.substring(1).toLowerCase());
+        }
+
+        return builder.toString();
+    }
 
 }
