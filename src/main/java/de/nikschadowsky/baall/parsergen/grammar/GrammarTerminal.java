@@ -75,7 +75,7 @@ public record GrammarTerminal(TerminalType type, String value) implements Gramma
 
         public static TerminalType getTypeFromDescription(String description) {
             return Arrays.stream(values())
-                         .filter(value -> value.getDescription().equals(description))
+                         .filter(value -> value.getDescription().equalsIgnoreCase(description))
                          .findAny()
                          .orElseThrow(() -> new GrammarSyntaxException.NoGrammarTerminalTypeException(
                                  "",
