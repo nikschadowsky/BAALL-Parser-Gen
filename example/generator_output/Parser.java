@@ -16,7 +16,7 @@ public class Parser {
     return Map.ofEntries(
         Map.entry("(", new TerminalSymbol(TerminalType.ANY, "(")),
         Map.entry(")", new TerminalSymbol(TerminalType.ANY, ")")),
-        Map.entry("", new TerminalSymbol(TerminalType.NUMBER, "")),
+        Map.entry("_NUMBER", new TerminalSymbol(TerminalType.NUMBER, "_NUMBER")),
         Map.entry("+", new TerminalSymbol(TerminalType.ANY, "+")),
         Map.entry("-", new TerminalSymbol(TerminalType.ANY, "-")),
         Map.entry("*", new TerminalSymbol(TerminalType.ANY, "*")),
@@ -53,7 +53,7 @@ public class Parser {
   }
 
   private boolean parseTerm(Queue<TerminalComparable> queue) {
-    if (TERMINAL_MAP.get("").symbolMatches(queue.poll())) {
+    if (TERMINAL_MAP.get("_NUMBER").symbolMatches(queue.poll())) {
       return true;
     }
     // TODO add behaviour when this symbol couldn't be parsed

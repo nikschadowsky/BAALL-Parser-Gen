@@ -194,7 +194,7 @@ public class GrammarReader {
                         }
 
                         if (!type.hasExactValueMatching()) {
-                            sententialForm.add(new GrammarTerminal(type, ""));
+                            sententialForm.add(new GrammarTerminal(type, token));
                         } else {
                             throw new GrammarSyntaxException(
                                     createLineString(l, content.lines()[l]),

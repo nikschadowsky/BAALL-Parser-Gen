@@ -28,7 +28,7 @@ class GrammarReaderTest {
         Set<Map.Entry<String, GrammarTerminal.TerminalType>> testTerminals = Set.of(
                 Map.entry("T", GrammarTerminal.TerminalType.ANY),
                 Map.entry("|", GrammarTerminal.TerminalType.ANY),
-                Map.entry("", GrammarTerminal.TerminalType.NUMBER)
+                Map.entry("_NUMBER", GrammarTerminal.TerminalType.NUMBER)
         );
 
         assertCollectionShallowEquals(
