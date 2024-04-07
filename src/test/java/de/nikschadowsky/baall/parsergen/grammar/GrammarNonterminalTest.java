@@ -4,7 +4,7 @@ import de.nikschadowsky.baall.parsergen._utility.GrammarUtility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Set;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,11 +22,11 @@ class GrammarNonterminalTest {
 
     @Test
     void testAddAnnotations() {
-        Set<GrammarNonterminalAnnotation> annotationSet1 = Set.of(
+        List<GrammarNonterminalAnnotation> annotationSet1 = List.of(
                 new GrammarNonterminalAnnotation("Annotation1"),
                 new GrammarNonterminalAnnotation("Annotation2")
         );
-        Set<GrammarNonterminalAnnotation> annotationSet2 = Set.of(
+        List<GrammarNonterminalAnnotation> annotationSet2 = List.of(
                 new GrammarNonterminalAnnotation("Annotation3"),
                 new GrammarNonterminalAnnotation("Annotation4")
         );
@@ -40,7 +40,7 @@ class GrammarNonterminalTest {
 
     @Test
     void testHasAnnotations() {
-        Set<GrammarNonterminalAnnotation> annotationSet = Set.of(
+        List<GrammarNonterminalAnnotation> annotationSet = List.of(
                 new GrammarNonterminalAnnotation("Annotation1"),
                 new GrammarNonterminalAnnotation("Annotation2")
         );
@@ -53,13 +53,13 @@ class GrammarNonterminalTest {
 
     @Test
     void testAddProductionRules() {
-        Set<GrammarProduction> ruleSet1 = Set.of(new GrammarProduction(
+        List<GrammarProduction> ruleSet1 = List.of(new GrammarProduction(
                 0,
                 nonterminal,
                 GrammarUtility.getTerminalWithTypeAny("a"),
                 GrammarUtility.getTerminalWithTypeAny("b")
         ));
-        Set<GrammarProduction> ruleSet2 = Set.of(new GrammarProduction(
+        List<GrammarProduction> ruleSet2 = List.of(new GrammarProduction(
                 0,
                 nonterminal,
                 GrammarUtility.getTerminalWithTypeAny("c"),

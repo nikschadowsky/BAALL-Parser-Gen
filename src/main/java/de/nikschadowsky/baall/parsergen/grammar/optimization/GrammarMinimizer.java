@@ -3,17 +3,20 @@ package de.nikschadowsky.baall.parsergen.grammar.optimization;
 import de.nikschadowsky.baall.parsergen.grammar.Grammar;
 import de.nikschadowsky.baall.parsergen.grammar.GrammarNonterminal;
 import de.nikschadowsky.baall.parsergen.grammar.GrammarProduction;
+import de.nikschadowsky.baall.parsergen.grammar.GrammarTerminal;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * File created on 30.01.2024
+ * <p>
+ * TODO rework
  */
 public class GrammarMinimizer {
 
@@ -57,7 +60,7 @@ public class GrammarMinimizer {
                                         .replace(toBeReplaced, builder.getRuleBuilder().getSententialForms());
                         }
                     }
-                    if(!builder.isStartNonterminalBuilder())
+                    if (!builder.isStartNonterminalBuilder())
                         itr.remove();
                 }
             }
@@ -65,19 +68,26 @@ public class GrammarMinimizer {
 
         } while (totalNewNonterminals != nonterminalBuilderMap.size());
 
-        Set<GrammarNonterminal> newNonterminals =
+        LinkedHashSet<GrammarNonterminal> newNonterminals =
                 nonterminalBuilderMap.values().stream()
                                      .map(GrammarBuilder.GrammarNonterminalBuilder::build)
-                                     .collect(Collectors.toSet());
+                                     .collect(Collectors.toCollection(LinkedHashSet::new));
 
 
-        Set<GrammarProduction> newProductionRules = new HashSet<>();
+        LinkedHashSet<GrammarProduction> newProductionRules = new LinkedHashSet<>();
         newNonterminals.stream().map(GrammarNonterminal::getProductionRules).forEach(newProductionRules::addAll);
 
-        return new Grammar(newNonterminals.stream()
-                                          .filter(nonterminal -> nonterminal.hasAnnotation("Start"))
-                                          .findFirst()
-                                          .orElseThrow(), newNonterminals, newProductionRules);
+        LinkedHashSet<GrammarTerminal> newTerminals = minimizeTerminals(source.getAllTerminals(), newProductionRules);
+
+        return new Grammar(
+                newNonterminals.stream()
+                               .filter(nonterminal -> nonterminal.hasAnnotation("Start"))
+                               .findFirst()
+                               .orElseThrow(),
+                newNonterminals,
+                newProductionRules,
+                newTerminals
+        );
     }
 
 
@@ -89,6 +99,16 @@ public class GrammarMinimizer {
                              n -> new GrammarNonterminal(
                                      n.getIdentifier())
                      ));
+    }
+
+    private LinkedHashSet<GrammarTerminal> minimizeTerminals(LinkedHashSet<GrammarTerminal> old, LinkedHashSet<GrammarProduction> rules) {
+        return old.stream()
+                  .filter(
+                          // if any sentential form contains this terminal, keep it
+                          terminal -> rules.stream()
+                                           .anyMatch(rule -> Arrays.asList(rule.getSententialForm())
+                                                                   .contains(terminal)))
+                  .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
 }

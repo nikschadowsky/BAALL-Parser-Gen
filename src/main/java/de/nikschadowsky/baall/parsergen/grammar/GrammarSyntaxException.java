@@ -14,15 +14,8 @@ public class GrammarSyntaxException extends RuntimeException {
         super("Invalid grammar syntax! %s%nReason: %s".formatted(additionalInformation, reason), cause);
     }
 
-    public GrammarSyntaxException(String reason, Throwable cause) {
-        this("", reason, cause);
-    }
-
     public static class NoGrammarTerminalTypeException extends GrammarSyntaxException{
 
-        public NoGrammarTerminalTypeException(String additionalInformation, String reason, Throwable cause) {
-            super(additionalInformation, reason, cause);
-        }
         public NoGrammarTerminalTypeException(String additionalInformation, String reason) {
             super(additionalInformation, reason);
         }

@@ -52,7 +52,7 @@ public class GrammarBuilder {
 
         private final List<List<GrammarSymbol>> sententialForms;
 
-        public ProductionRuleBuilder(Set<GrammarProduction> originalRules, Map<GrammarNonterminal, GrammarNonterminal> nonterminalTranslationMap) {
+        public ProductionRuleBuilder(List<GrammarProduction> originalRules, Map<GrammarNonterminal, GrammarNonterminal> nonterminalTranslationMap) {
             sententialForms = originalRules.stream()
                                            .map(rule -> translateProductionRule(rule, nonterminalTranslationMap))
                                            .collect(Collectors.toList());
@@ -104,13 +104,12 @@ public class GrammarBuilder {
             }
         }
 
-        protected Set<GrammarProduction> build() {
+        protected List<GrammarProduction> build() {
             return sententialForms.stream()
                                   .map(list -> new GrammarProduction(
                                           GrammarProductionUIDGenerator.getInstance().nextID(),
                                           list.toArray(GrammarSymbol[]::new)
-                                  ))
-                                  .collect(Collectors.toSet());
+                                  )).toList();
 
         }
 

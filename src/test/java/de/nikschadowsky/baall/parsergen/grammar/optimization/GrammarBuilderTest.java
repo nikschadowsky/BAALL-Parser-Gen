@@ -71,7 +71,7 @@ class GrammarBuilderTest {
 
         builder.replace(target, replacements);
 
-        Set<GrammarProduction> build = builder.build();
+        List<GrammarProduction> build = builder.build();
 
         assertCollectionShallowEquals(expected, build);
     }

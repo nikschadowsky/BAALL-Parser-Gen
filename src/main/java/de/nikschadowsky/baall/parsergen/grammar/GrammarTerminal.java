@@ -12,7 +12,7 @@ public record GrammarTerminal(TerminalType type, String value) implements Gramma
 
     @Override
     public @NotNull String getFormatted() {
-        return "";
+        return value;
     }
 
     @Override
@@ -20,8 +20,7 @@ public record GrammarTerminal(TerminalType type, String value) implements Gramma
         return true;
     }
 
-    @Override
-    public boolean symbolMatches(GrammarSymbol s) {
+    public boolean symbolEquals(GrammarSymbol s) {
         if (s instanceof GrammarTerminal terminal) {
 
             // if one of the terminal is type ANY, compare literal value
@@ -29,20 +28,16 @@ public record GrammarTerminal(TerminalType type, String value) implements Gramma
                 return value.equals(terminal.value());
             }
 
-            if (!type().hasExactValueMatching() && type().equals(terminal.type())) {
-                return true;
+            if (type().equals(terminal.type())) {
+                return !type.hasExactValueMatching() || value.equals(terminal.value);
             }
-
-            // else the type must be equal too
-            return type().equals(terminal.type()) && value().equals(terminal.value());
-
         }
 
         return false;
     }
 
     @Override
-    public boolean symbolEquals(GrammarSymbol s) {
+    public boolean symbolDeepEquals(GrammarSymbol s) {
         return equals(s);
     }
 
@@ -79,7 +74,7 @@ public record GrammarTerminal(TerminalType type, String value) implements Gramma
 
         public static TerminalType getTypeFromDescription(String description) {
             return Arrays.stream(values())
-                         .filter(value -> value.getDescription().equals(description))
+                         .filter(value -> value.getDescription().equalsIgnoreCase(description))
                          .findAny()
                          .orElseThrow(() -> new GrammarSyntaxException.NoGrammarTerminalTypeException(
                                  "",

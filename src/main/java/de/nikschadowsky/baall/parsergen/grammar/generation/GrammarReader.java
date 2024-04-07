@@ -3,6 +3,8 @@ package de.nikschadowsky.baall.parsergen.grammar.generation;
 import de.nikschadowsky.baall.parsergen.grammar.*;
 import de.nikschadowsky.baall.parsergen.util.ArrayUtility;
 import de.nikschadowsky.baall.parsergen.util.FileUtility;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -14,8 +16,8 @@ import java.util.stream.Collectors;
  * consists of production rules, separated by a linefeed. A {@link GrammarProduction} always consists of a
  * {@link GrammarNonterminal} identifier followed by an arrow operator '->' and a series of rules separated by a pipe
  * '|' consisting of identifiers for {@link GrammarSymbol GrammarSymbols} separated by a space. These symbols can either
- * be {@link GrammarNonterminal GrammarNonterminals}, {@link GrammarTerminal Tokens} surrounded by "double quotes" or meta
- * symbols. Meta symbols always begin with an underscore ('_'), and may be of the following list of recognized meta
+ * be {@link GrammarNonterminal GrammarNonterminals}, {@link GrammarTerminal Tokens} surrounded by "double quotes" or
+ * meta symbols. Meta symbols always begin with an underscore ('_'), and may be of the following list of recognized meta
  * symbols:
  * <ul>
  *     <li>
@@ -36,6 +38,8 @@ import java.util.stream.Collectors;
 public class GrammarReader {
 
     private static GrammarReader instance;
+
+    private static final Logger logger = LogManager.getLogger(GrammarReader.class);
 
     private GrammarReader() {
     }
@@ -63,18 +67,19 @@ public class GrammarReader {
 
         validateGrammarFileContent(content);
 
-        Set<GrammarNonterminal> nonterminalSet = addAllNonterminal(content);
-        Set<GrammarProduction> ruleSet = new HashSet<>(addProductionRules(nonterminalSet, content));
-        enhanceNonterminalsWithAnnotations(nonterminalSet, content);
+        LinkedHashSet<GrammarNonterminal> nonterminals = addAllNonterminal(content);
+        LinkedHashSet<GrammarProduction> ruleSet = addProductionRules(nonterminals, content);
+        LinkedHashSet<GrammarTerminal> terminals = addTerminals(ruleSet);
+        enhanceNonterminalsWithAnnotations(nonterminals, content);
 
-        GrammarNonterminal startSymbol = determineStartSymbol(nonterminalSet);
+        GrammarNonterminal startSymbol = determineStartSymbol(nonterminals);
 
-        return new Grammar(startSymbol, nonterminalSet, ruleSet);
+        return new Grammar(startSymbol, nonterminals, ruleSet, terminals);
     }
 
     private @NotNull GrammarFileContent createFileContentContainer(@NotNull Path path) {
         if (!FileUtility.getFileExtension(path).equals("grammar")) {
-            System.out.println("Grammar files should use the '.grammar' extension!");
+            logger.warn("Grammar files should use the '.grammar' extension!");
         }
         String preprocessed = preprocess(FileUtility.getFileContent(path));
         String[] lines = preprocessed.split("\\v+");
@@ -102,7 +107,6 @@ public class GrammarReader {
             int index = i;
             Arrays.setAll(tokens[index], j -> tokens[index][j].trim());
         }
-
         return tokens;
     }
 
@@ -122,15 +126,13 @@ public class GrammarReader {
                 }
             }
         }
-
     }
 
 
-    private @NotNull Set<GrammarNonterminal> addAllNonterminal(@NotNull GrammarFileContent content) {
-        Set<GrammarNonterminal> nonterminalSet = new HashSet<>();
+    private @NotNull LinkedHashSet<GrammarNonterminal> addAllNonterminal(@NotNull GrammarFileContent content) {
+        LinkedHashSet<GrammarNonterminal> nonterminalSet = new LinkedHashSet<>();
 
         for (int l = 0; l < content.lineCount(); l++) {
-
             String[] tokens = content.tokens()[l];
 
             String identifier = tokens[0].toUpperCase();
@@ -149,16 +151,16 @@ public class GrammarReader {
         return nonterminalSet;
     }
 
-    private @NotNull Set<GrammarProduction> addProductionRules(@NotNull Set<GrammarNonterminal> nonterminalSet, @NotNull GrammarFileContent content) {
-        Set<GrammarProduction> ruleSet = new HashSet<>();
+    private @NotNull LinkedHashSet<GrammarProduction> addProductionRules(@NotNull LinkedHashSet<GrammarNonterminal> nonterminals, @NotNull GrammarFileContent content) {
+        LinkedHashSet<GrammarProduction> ruleSet = new LinkedHashSet<>();
 
         for (int l = 0; l < content.lineCount(); l++) {
             String identifier = content.tokens()[l][0];
             String rules = content.tokens()[l][1];
 
-            GrammarNonterminal nonterminal = getNonterminalFromSet(nonterminalSet, identifier);
+            GrammarNonterminal nonterminal = getNonterminalFromSet(nonterminals, identifier);
             // rules for the current nonterminal
-            Set<GrammarProduction> productionRules = new HashSet<>();
+            List<GrammarProduction> productionRules = new ArrayList<>();
 
             String[] ruleStrings = rules.split("(?<!\\\\)\\|"); // any '|' without a '\' preceding
 
@@ -192,7 +194,7 @@ public class GrammarReader {
                         }
 
                         if (!type.hasExactValueMatching()) {
-                            sententialForm.add(new GrammarTerminal(type, ""));
+                            sententialForm.add(new GrammarTerminal(type, token));
                         } else {
                             throw new GrammarSyntaxException(
                                     createLineString(l, content.lines()[l]),
@@ -206,7 +208,7 @@ public class GrammarReader {
 
                         sententialForm.add(new GrammarTerminal(GrammarTerminal.TerminalType.ANY, tokenValue));
                     } else {
-                        sententialForm.add(getNonterminalFromSet(nonterminalSet, token));
+                        sententialForm.add(getNonterminalFromSet(nonterminals, token));
                     }
                 }
                 productionRules.add(new GrammarProduction(
@@ -231,10 +233,24 @@ public class GrammarReader {
         return ruleSet;
     }
 
-    private GrammarNonterminal determineStartSymbol(@NotNull Set<GrammarNonterminal> nonterminalSet) {
-        Set<GrammarNonterminal> startCandidates = nonterminalSet.stream()
-                                                                .filter(n -> n.hasAnnotation("Start"))
-                                                                .collect(Collectors.toSet());
+    private LinkedHashSet<GrammarTerminal> addTerminals(LinkedHashSet<GrammarProduction> productionRules) {
+        LinkedHashSet<GrammarTerminal> terminals = new LinkedHashSet<>();
+
+        for (GrammarProduction rule : productionRules) {
+            for (GrammarSymbol symbol : rule.getSententialForm()) {
+                if (symbol.isTerminal()) {
+                    terminals.add(((GrammarTerminal) symbol));
+                }
+            }
+        }
+
+        return terminals;
+    }
+
+    private GrammarNonterminal determineStartSymbol(@NotNull LinkedHashSet<GrammarNonterminal> nonterminals) {
+        Set<GrammarNonterminal> startCandidates = nonterminals.stream()
+                                                              .filter(n -> n.hasAnnotation("Start"))
+                                                              .collect(Collectors.toSet());
         if (startCandidates.size() > 1)
             throw new GrammarSyntaxException("Multiple nonterminals annotated with @Start!");
 
@@ -245,23 +261,23 @@ public class GrammarReader {
                               ));
     }
 
-    private void enhanceNonterminalsWithAnnotations(@NotNull Set<GrammarNonterminal> nonterminalSet, @NotNull GrammarFileContent content) {
+    private void enhanceNonterminalsWithAnnotations(@NotNull LinkedHashSet<GrammarNonterminal> nonterminals, @NotNull GrammarFileContent content) {
         for (String[] token : content.tokens()) {
-            Set<GrammarNonterminalAnnotation> annotations =
-                    Set.of(Arrays.stream(ArrayUtility.subarray(token, 2, -1))
-                                 .map(GrammarNonterminalAnnotation::new)
-                                 .toArray(GrammarNonterminalAnnotation[]::new));
+            List<GrammarNonterminalAnnotation> annotations =
+                    List.of(Arrays.stream(ArrayUtility.subarray(token, 2, -1))
+                                  .map(GrammarNonterminalAnnotation::new)
+                                  .toArray(GrammarNonterminalAnnotation[]::new));
 
-            getNonterminalFromSet(nonterminalSet, token[0]).addAnnotations(annotations);
+            getNonterminalFromSet(nonterminals, token[0]).addAnnotations(annotations);
         }
     }
 
 
-    private boolean isNonterminalAlreadyInSet(@NotNull Set<GrammarNonterminal> set, @NotNull String e) {
+    private boolean isNonterminalAlreadyInSet(@NotNull LinkedHashSet<GrammarNonterminal> set, @NotNull String e) {
         return set.stream().anyMatch(token -> token.getIdentifier().equals(e.toUpperCase()));
     }
 
-    private @NotNull GrammarNonterminal getNonterminalFromSet(@NotNull Set<GrammarNonterminal> set, @NotNull String e) {
+    private @NotNull GrammarNonterminal getNonterminalFromSet(@NotNull LinkedHashSet<GrammarNonterminal> set, @NotNull String e) {
         return set.stream()
                   .filter(token -> token.getIdentifier().equals(e.toUpperCase()))
                   .findAny()

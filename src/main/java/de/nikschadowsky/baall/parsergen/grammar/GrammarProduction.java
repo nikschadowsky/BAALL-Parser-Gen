@@ -14,10 +14,6 @@ public class GrammarProduction {
         this.sententialForm = symbols;
     }
 
-    public int getProductionRuleIdentifier() {
-        return productionRuleIdentifier;
-    }
-
     public GrammarSymbol[] getSententialForm() {
         return sententialForm;
     }
@@ -65,7 +61,7 @@ public class GrammarProduction {
             if (getSentenceLength() != gp.getSentenceLength()) return false;
 
             return IntStream.range(0, getSentenceLength())
-                                .allMatch(i -> sententialForm[i].symbolEquals(
+                                .allMatch(i -> sententialForm[i].symbolDeepEquals(
                                         gp.getSententialForm()[i]));
         }
 

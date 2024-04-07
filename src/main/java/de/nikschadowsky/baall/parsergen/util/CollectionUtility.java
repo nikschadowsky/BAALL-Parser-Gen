@@ -2,7 +2,6 @@ package de.nikschadowsky.baall.parsergen.util;
 
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Queue;
 import java.util.function.BiPredicate;
 
 /**
@@ -13,16 +12,11 @@ public class CollectionUtility {
     private CollectionUtility() {
     }
 
-    // TODO refactor
-    public static String getNextThreeQueueSymbols(Queue<?> queue) {
-        return queue.stream().limit(3).toList().toString();
-    }
-
     public static <T> boolean shallowCompareCollections(Collection<? extends T> c1, Collection<? extends T> c2) {
-        return shallowCompareCollections(c1, c2, Objects::equals);
+        return compareCollections(c1, c2, Objects::equals);
     }
 
-    public static <T> boolean shallowCompareCollections(
+    public static <T> boolean compareCollections(
             Collection<? extends T> c1,
             Collection<? extends T> c2,
             BiPredicate<T, T> comparePredicate
