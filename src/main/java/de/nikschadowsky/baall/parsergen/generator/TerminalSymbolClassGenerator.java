@@ -4,6 +4,7 @@ import com.squareup.javapoet.*;
 import de.nikschadowsky.baall.parsergen.grammar.Grammar;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.processing.Generated;
 import javax.lang.model.element.Modifier;
 
 /**
@@ -80,6 +81,9 @@ public class TerminalSymbolClassGenerator implements JavaSourceGenerator {
 
         return TypeSpec.classBuilder(TERMINAL_CLASS_TYPENAME)
                        .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
+                       .addAnnotation(AnnotationSpec.builder(Generated.class)
+                                                    .addMember("value", "$S", "by BAALL-Parser-Gen")
+                                                    .build())
                        .addSuperinterface(TERMINAL_COMPARABLE_INTERFACE_TYPENAME)
                        .addField(valueFieldSpec)
                        .addField(typeFieldSpec)

@@ -2,7 +2,9 @@ package x.y.z;
 
 import java.util.Map;
 import java.util.Queue;
+import javax.annotation.processing.Generated;
 
+@Generated("by BAALL-Parser-Gen")
 public class Parser {
   private static final Map<String, TerminalSymbol> TERMINAL_MAP = generateMapEntries();
 
@@ -77,6 +79,7 @@ public class Parser {
     throw new RuntimeException("Expected '?' but got '?'!");
   }
 
+  @Generated("by BAALL-Parser-Gen")
   private static class TerminalSymbol implements TerminalComparable {
     private final String value;
 

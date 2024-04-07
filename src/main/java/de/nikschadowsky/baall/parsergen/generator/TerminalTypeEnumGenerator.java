@@ -1,13 +1,11 @@
 package de.nikschadowsky.baall.parsergen.generator;
 
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.*;
 import de.nikschadowsky.baall.parsergen.grammar.Grammar;
 import de.nikschadowsky.baall.parsergen.grammar.GrammarTerminal;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.processing.Generated;
 import javax.lang.model.element.Modifier;
 import java.util.List;
 
@@ -34,6 +32,10 @@ public class TerminalTypeEnumGenerator implements JavaSourceGenerator {
     public @NotNull TypeSpec generateTypeSpec(@NotNull Grammar grammar) {
         TypeSpec.Builder terminalTypeInterfaceTypeSpec =
                 TypeSpec.enumBuilder(TERMINAL_TYPE_ENUM_TYPENAME).addModifiers(Modifier.PUBLIC);
+
+        AnnotationSpec generatedAnnotationSpec =
+                AnnotationSpec.builder(Generated.class).addMember("value", "$S", "by BAALL-Parser-Gen").build();
+        terminalTypeInterfaceTypeSpec.addAnnotation(generatedAnnotationSpec);
 
         List<GrammarTerminal.TerminalType> entries = List.of(GrammarTerminal.TerminalType.values());
 

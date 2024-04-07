@@ -8,6 +8,7 @@ import de.nikschadowsky.baall.parsergen.grammar.analysis.GrammarProductionTreeAs
 import de.nikschadowsky.baall.parsergen.grammar.analysis.GrammarProductionTreeNode;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.processing.Generated;
 import javax.lang.model.element.Modifier;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -39,6 +40,10 @@ public class ParserClassGenerator implements JavaSourceGenerator {
     public @NotNull TypeSpec generateTypeSpec(@NotNull Grammar grammar) {
         TypeSpec.Builder parserClassTypeSpec =
                 TypeSpec.classBuilder(PARSER_CLASS_TYPENAME).addModifiers(Modifier.PUBLIC);
+
+        AnnotationSpec generatedAnnotationSpec = AnnotationSpec.builder(Generated.class).addMember("value", "$S", "by BAALL-Parser-Gen").build();
+
+        parserClassTypeSpec.addAnnotation(generatedAnnotationSpec);
 
         parserClassTypeSpec.addField(ParameterizedTypeName.get(
                 ClassName.get(Queue.class),

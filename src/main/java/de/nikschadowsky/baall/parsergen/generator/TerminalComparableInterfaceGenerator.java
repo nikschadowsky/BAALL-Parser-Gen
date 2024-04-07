@@ -1,10 +1,12 @@
 package de.nikschadowsky.baall.parsergen.generator;
 
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import de.nikschadowsky.baall.parsergen.grammar.Grammar;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.processing.Generated;
 import javax.lang.model.element.Modifier;
 
 /**
@@ -45,6 +47,9 @@ public class TerminalComparableInterfaceGenerator implements JavaSourceGenerator
                        .addModifiers(Modifier.PUBLIC)
                        .addMethod(typeGetterMethod)
                        .addMethod(valueGetterMethod)
+                       .addAnnotation(AnnotationSpec.builder(Generated.class)
+                                                    .addMember("value", "$S", "by BAALL-Parser-Gen")
+                                                    .build())
                        .build();
     }
 }
