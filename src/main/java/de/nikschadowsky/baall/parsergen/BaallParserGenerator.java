@@ -90,8 +90,8 @@ public class BaallParserGenerator {
 
             if (minimizeGrammar) {
                 grammar = new GrammarMinimizer().minimizeGrammar(grammar);
+                logger.info("Grammar minimized!");
             }
-            logger.info("Grammar minimized!");
 
             Exporter.getInstance()
                     .exportClasses(grammar, Path.of(targetDestination), packageName, overrideExistingFiles);
