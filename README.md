@@ -9,7 +9,7 @@ designed for the BAALL programming language compiler.
 
 ### 1. Download the latest release.
 
-→ [Releases](nikschadowsky/BAALL-Parser-Gen/releases)
+→ [Releases](https://github.com/nikschadowsky/BAALL-Parser-Gen/releases)
 
 ### 2. Navigate to the jar's location in your terminal of choice
 
